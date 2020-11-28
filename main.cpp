@@ -58,7 +58,9 @@ int main()
 
 	float vs[] = {
 		0.0, 0.0, 0.0,
-		100, 100, 0.0};
+		0.0, 10.0, 0.0,
+		10.0, 10.0, 0.0,
+		10.0, 0.0, 0.0};
 
 	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
@@ -95,7 +97,7 @@ int main()
 		glUseProgram(shader);
 		glUniform3f(c_color_l, 1.0, 1.0, 1.0);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_LINES, 0, sizeof(vs) / sizeof(vs[0]));
+		glDrawArrays(GL_QUADS, 0, sizeof(vs) / sizeof(vs[0]));
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 		
