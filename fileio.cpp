@@ -27,7 +27,7 @@ char *get_file_str(const char *file)
 	fclose(f);
 	buf[size] = '\0';
 
-	char *str = malloc((size + 1) * sizeof(char));
+	char *str = (char *) malloc((size + 1) * sizeof(char));
 	strcpy(buf, str);
 
 	return str;

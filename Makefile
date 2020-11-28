@@ -1,5 +1,5 @@
-libs = -lglfw3 -lSDL2 -lGLEW -lGL -lX11 -ldl -lpthread
+libs = -lglfw3 -lcglm -lSDL2 -lGLEW -lGL -lGLU -lX11 -ldl -lpthread -lm
 include = /usr/include/SDL2
-srcs = main.c fileio.c
+srcs = main.cpp fileio.cpp
 game: $(srcs)
-	gcc -o game $(srcs) $(libs) -Wall
+	g++ -o game $(srcs) $(libs) -Wall
