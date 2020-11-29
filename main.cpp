@@ -18,7 +18,7 @@ int D_HEIGHT = 720;
 
 float *create_rect(float x, float y, float w, float h)
 {
-	float length = 8; 
+	float length = 8;
 	float *vs = (float*) malloc(length * sizeof(float));
 
 	vs[0] = x;
@@ -29,7 +29,7 @@ float *create_rect(float x, float y, float w, float h)
 	vs[5] = y + h;
 	vs[6] = x + w;
 	vs[7] = y;
-	
+
 	return vs;
 }
 
