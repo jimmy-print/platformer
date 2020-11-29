@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 
 #include <stdbool.h>
+#include <unistd.h>
 
 #include <iostream>
 
@@ -15,21 +16,39 @@ int D_WIDTH = 1280;
 int D_HEIGHT = 720;
 
 
-void move_rect(float *vs, float dx, float dy)
+float *create_rect(float x, float y, float w, float h)
 {
-	vs[0] += dx;
-	vs[3] += dx;
-	vs[6] += dx;
-	vs[9] += dx;
+	float length = 8; 
+	float *vs = (float*) malloc(length * sizeof(float));
 
-	vs[1] += dy;
-	vs[4] += dy;
-	vs[7] += dy;
-	vs[10] += dy;
+	vs[0] = x;
+	vs[1] = y;
+	vs[2] = x;
+	vs[3] = y + h;
+	vs[4] = x + w;
+	vs[5] = y + h;
+	vs[6] = x + w;
+	vs[7] = y;
+	
+	return vs;
 }
 
 
-int main()
+void move_rect(float *vs, float dx, float dy)
+{
+	vs[0] += dx;
+	vs[2] += dx;
+	vs[4] += dx;
+	vs[6] += dx;
+
+	vs[1] += dy;
+	vs[3] += dy;
+	vs[5] += dy;
+	vs[7] += dy;
+}
+
+
+int main(int argc, char **argv)
 {
 	char *vs_str = get_file_str("vs.txt");
 	char *fs_str = get_file_str("fs.txt");
@@ -46,19 +65,22 @@ int main()
 
 	glewInit();
 
+	/*
 	float vs[] = {
-		0.0, 0.0, 0.0,
-		0.0, 10.0, 0.0,
-		10.0, 10.0, 0.0,
-		10.0, 0.0, 0.0};
+		0.0, 0.0,
+		0.0, 10.0,
+		10.0, 10.0,
+		10.0, 0.0};
+			*/
+	float *vs = create_rect(0, 0, 10, 10);
 
 	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vs), vs, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, vs, GL_STATIC_DRAW);
 	glBindVertexArray(VAO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
 	GLuint shader = loadshader(vs_str, fs_str);
@@ -116,12 +138,12 @@ int main()
 		move_rect(vs, dx, dy);
 
 		glBindVertexArray(VAO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vs), vs, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, vs, GL_STATIC_DRAW);
 
 		glUseProgram(shader);
 		glUniform3f(c_color_l, 1.0, 1.0, 0.0);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_QUADS, 0, sizeof(vs) / sizeof(vs[0]));
+		glDrawArrays(GL_QUADS, 0, 8);
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
@@ -130,5 +152,7 @@ int main()
 
 	SDL_DestroyWindow(window);
 	free(vs_str);
+	free(fs_str);
+	free(vs);
 	return -1;
 }
