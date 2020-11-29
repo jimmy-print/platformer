@@ -6,38 +6,28 @@
 
 #include <stdbool.h>
 
+#include <iostream>
+
 #include "fileio.h"
+#include "shader.h"
 
 int D_WIDTH = 1280;
 int D_HEIGHT = 720;
 
-GLuint compileshader(GLuint type, const char* source_string) {
-	unsigned int id = glCreateShader(type);
-	glShaderSource(id, 1, &source_string, NULL);
-	glCompileShader(id);
-	return id;
-}
 
-
-GLuint loadshader(char *vs_cstr, char *fs_cstr)
+void move_rect(float *vs, float dx, float dy)
 {
-	GLuint program;
+	vs[0] += dx;
+	vs[3] += dx;
+	vs[6] += dx;
+	vs[9] += dx;
 
-	program = glCreateProgram();
-
-	GLuint vs = compileshader(GL_VERTEX_SHADER, vs_cstr);
-	GLuint fs = compileshader(GL_FRAGMENT_SHADER, fs_cstr);
-
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glValidateProgram(program);
-
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-
-	return program;
+	vs[1] += dy;
+	vs[4] += dy;
+	vs[7] += dy;
+	vs[10] += dy;
 }
+
 
 int main()
 {
@@ -85,25 +75,59 @@ int main()
 				     glm::vec3(0, 1, 0));
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
-	
+
+	float dx = 0;
+	float dy = 0;
+	const float gravity = 0.5;
+
 	while (running) {
+		glClear(GL_COLOR_BUFFER_BIT);
 		SDL_PollEvent(&event);
 		switch (event.type) {
 			case SDL_QUIT:
 				running = false;
 				break;
-		}		
+
+			case SDL_KEYDOWN:
+				switch (event.key.keysym.sym) {
+					case SDLK_d:
+						dx = 10;
+						break;
+					case SDLK_a:
+						dx = -10;
+						break;
+
+					case SDLK_SPACE:
+						dy = -10;
+						break;
+				}
+				break;
+			case SDL_KEYUP:
+				switch (event.key.keysym.sym) {
+					case SDLK_d:
+					case SDLK_a:
+						dx = 0;
+						break;
+				}
+				break;
+		}
+
+		dy += gravity;
+		move_rect(vs, dx, dy);
+
+		glBindVertexArray(VAO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vs), vs, GL_STATIC_DRAW);
 
 		glUseProgram(shader);
-		glUniform3f(c_color_l, 1.0, 1.0, 1.0);
+		glUniform3f(c_color_l, 1.0, 1.0, 0.0);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_QUADS, 0, sizeof(vs) / sizeof(vs[0]));
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
-		
+
 		SDL_GL_SwapWindow(window);
 	}
-	
+
 	SDL_DestroyWindow(window);
 	free(vs_str);
 	return -1;
