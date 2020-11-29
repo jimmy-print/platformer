@@ -135,6 +135,9 @@ int main(int argc, char **argv)
 		}
 
 		dy += gravity;
+		if (vs[3] >= (float) D_HEIGHT) {
+		  dy = 0;
+		}
 		move_rect(vs, dx, dy);
 
 		glBindVertexArray(VAO);
