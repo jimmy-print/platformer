@@ -48,6 +48,16 @@ void move_rect(float *vs, float dx, float dy)
 }
 
 
+void set_rect_y(float *vs, float y, float height)
+{
+	// y is the top of the rect
+	vs[1] = y;
+	vs[3] = y + height;
+	vs[5] = y + height;
+	vs[7] = y;
+}
+
+
 int main(int argc, char **argv)
 {
 	char *vs_str = get_file_str("vs.txt");
@@ -65,14 +75,8 @@ int main(int argc, char **argv)
 
 	glewInit();
 
-	/*
-	float vs[] = {
-		0.0, 0.0,
-		0.0, 10.0,
-		10.0, 10.0,
-		10.0, 0.0};
-			*/
-	float *vs = create_rect(0, 0, 10, 10);
+	float len = 10;
+	float *vs = create_rect(0, 0, len, len);
 
 	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
@@ -105,6 +109,12 @@ int main(int argc, char **argv)
 	while (running) {
 		glClear(GL_COLOR_BUFFER_BIT);
 		SDL_PollEvent(&event);
+
+		dy += gravity;
+		if (vs[3] >= (float) D_HEIGHT) {
+			dy = 0;
+			set_rect_y(vs, D_HEIGHT - len, len);
+		}
 		switch (event.type) {
 			case SDL_QUIT:
 				running = false;
@@ -134,10 +144,7 @@ int main(int argc, char **argv)
 				break;
 		}
 
-		dy += gravity;
-		if (vs[3] >= (float) D_HEIGHT) {
-		  dy = 0;
-		}
+
 		move_rect(vs, dx, dy);
 
 		glBindVertexArray(VAO);
