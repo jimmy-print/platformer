@@ -10,3 +10,6 @@ fileio.o:
 
 shader.o:
 	g++ -c shader.cpp -Wall
+
+clean:
+	rm *.o
