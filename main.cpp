@@ -122,5 +122,5 @@ int main(int argc, char **argv)
 	free(vs_str);
 	free(fs_str);
 	free(vs);
-	return -1;
+	return 0;
 }
