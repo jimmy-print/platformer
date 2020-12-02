@@ -104,7 +104,6 @@ int main(int argc, char **argv)
 
 		move_rect(&r, dx, dy);
 
-		  printf("%f\n", r.y);
 		glBindVertexArray(VAO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, r.raw_vs, GL_STATIC_DRAW);
 
