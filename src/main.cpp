@@ -9,9 +9,9 @@
 
 #include <iostream>
 
-#include "fileio.h"
-#include "shader.h"
-#include "rect.h"
+#include <fileio.h>
+#include <shader.h>
+#include <rect.h>
 
 int D_WIDTH = 1280;
 int D_HEIGHT = 720;
