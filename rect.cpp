@@ -1,43 +1,57 @@
 #include <stdlib.h>
 
 
-float *create_rect(float x, float y, float w, float h)
+// The code for this struct is duplicated in rect.cpp and rect.h.
+// Assume that width and height never change.
+struct rect {
+  float *raw_vs;
+  float x;
+  float y;
+  float w;
+  float h;
+};
+
+
+struct rect create_rect(float x, float y, float w, float h)
 {
-	float length = 8;
-	float *vs = (float*) malloc(length * sizeof(float));
-
-	vs[0] = x;
-	vs[1] = y;
-	vs[2] = x;
-	vs[3] = y + h;
-	vs[4] = x + w;
-	vs[5] = y + h;
-	vs[6] = x + w;
-	vs[7] = y;
-
-	return vs;
+  float len = 8;
+  float *raw_vs = (float*) malloc(len * sizeof(float));
+  raw_vs[0] = x;
+  raw_vs[1] = y;
+  raw_vs[2] = x;
+  raw_vs[3] = y + h;
+  raw_vs[4] = x + w;
+  raw_vs[5] = y + h;
+  raw_vs[6] = x + w;
+  raw_vs[7] = y;
+  struct rect r = {raw_vs, x, y, w, h};
+  return r;
 }
 
 
-void move_rect(float *vs, float dx, float dy)
+void set_rect_y(struct rect *r, float y)
 {
-	vs[0] += dx;
-	vs[2] += dx;
-	vs[4] += dx;
-	vs[6] += dx;
-
-	vs[1] += dy;
-	vs[3] += dy;
-	vs[5] += dy;
-	vs[7] += dy;
+  r->y = y;
+  // y is the top of the rect
+  r->raw_vs[1] = y;
+  r->raw_vs[3] = y + r->h;
+  r->raw_vs[5] = y + r->h;
+  r->raw_vs[7] = y;
 }
 
 
-void set_rect_y(float *vs, float y, float height)
+void set_rect_x(struct rect *r, float x)
 {
-	// y is the top of the rect
-	vs[1] = y;
-	vs[3] = y + height;
-	vs[5] = y + height;
-	vs[7] = y;
+  r->x = x;
+  r->raw_vs[0] = x;
+  r->raw_vs[2] = x;
+  r->raw_vs[4] = x + r->w;
+  r->raw_vs[6] = x + r->w;
+}
+
+
+void move_rect(struct rect *r, float dx, float dy)
+{
+  set_rect_x(r, r->x + dx);
+  set_rect_y(r, r->y + dy);
 }

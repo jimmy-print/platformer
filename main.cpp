@@ -34,14 +34,13 @@ int main(int argc, char **argv)
 
 	glewInit();
 
-	float len = 10;
-	float *vs = create_rect(0, 0, len, len);
+	struct rect r = create_rect(0, 0, 10, 10);
 
 	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, vs, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, r.raw_vs, GL_STATIC_DRAW);
 	glBindVertexArray(VAO);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
@@ -70,9 +69,9 @@ int main(int argc, char **argv)
 		SDL_PollEvent(&event);
 
 		dy += gravity;
-		if (vs[3] >= (float) D_HEIGHT) {
+		if (r.y + r.h >= (float) D_HEIGHT) {
 			dy = 0;
-			set_rect_y(vs, D_HEIGHT - len, len);
+			set_rect_y(&r, D_HEIGHT - r.h);
 		}
 		switch (event.type) {
 			case SDL_QUIT:
@@ -103,10 +102,11 @@ int main(int argc, char **argv)
 				break;
 		}
 
-		move_rect(vs, dx, dy);
+		move_rect(&r, dx, dy);
 
+		  printf("%f\n", r.y);
 		glBindVertexArray(VAO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, vs, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, r.raw_vs, GL_STATIC_DRAW);
 
 		glUseProgram(shader);
 		glUniform3f(c_color_l, 1.0, 1.0, 0.0);
@@ -121,6 +121,6 @@ int main(int argc, char **argv)
 	SDL_DestroyWindow(window);
 	free(vs_str);
 	free(fs_str);
-	free(vs);
+	free(r.raw_vs);
 	return 0;
 }
