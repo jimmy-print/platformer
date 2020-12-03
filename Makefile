@@ -1,4 +1,6 @@
 libs = -lSDL2 -lGLEW -lGL -lGLU -lm
+test: test.cpp fileio.o
+	g++ -o test test.cpp fileio.o -I./include -Wall
 game: main.o fileio.o shader.o rect.o
 	g++ -o game main.o fileio.o shader.o rect.o $(libs)
 
