@@ -1,7 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <cglm/cglm.h>
 #include <SDL2/SDL.h>
 
 #include <stdbool.h>

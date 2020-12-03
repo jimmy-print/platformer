@@ -1,4 +1,4 @@
-libs = -lglfw3 -lcglm -lSDL2 -lGLEW -lGL -lGLU -lm
+libs = -lSDL2 -lGLEW -lGL -lGLU -lm
 game: main.o fileio.o shader.o rect.o
 	g++ -o game main.o fileio.o shader.o rect.o $(libs)
 
