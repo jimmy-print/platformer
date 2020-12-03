@@ -103,6 +103,14 @@ int main(int argc, char **argv)
 
 		move_rect(&r, dx, dy);
 
+		if (r.x <= 0) {
+			r.x = 0;
+			dx = 0;
+		} else if (r.x + r.w >= D_WIDTH) {
+			r.x = D_WIDTH - r.w;
+			dx = 0;
+		}
+
 		glBindVertexArray(VAO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, r.raw_vs, GL_STATIC_DRAW);
 
