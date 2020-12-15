@@ -1,7 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <SDL2/SDL.h>
 
 #include <stdbool.h>
 #include <unistd.h>
@@ -18,18 +17,26 @@ int D_HEIGHT = 720;
 
 int main(int argc, char **argv)
 {
-	char *vs_str = get_file_str("vs.txt");
-	char *fs_str = get_file_str("fs.txt");
+//	char *vs_str = get_file_str("vs.txt");
+//	char *fs_str = get_file_str("fs.txt");
+	char *vs_str =
+		"#version 330 core\n"
+		"layout (location = 0) in vec3 pos;\n"
+		"uniform mat4 mvp;\n"
+		"void main() {\n"
+		"gl_Position = mvp * vec4(pos.x, pos.y, pos.z, 1.0);\n"
+		"}\n";
+	char *fs_str =
+		"#version 330 core\n"
+		"out vec3 color;\n"
+		"uniform vec3 c_color;\n"
+		"void main() {\n"
+		"color = c_color;\n"
+		"}\n";
 
-	SDL_Init(SDL_INIT_EVERYTHING);
-	SDL_Window *window = SDL_CreateWindow("game",
-		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		D_WIDTH, D_HEIGHT, SDL_WINDOW_OPENGL);
-	if (window == NULL) {
-		printf("Window creation error %s\n", SDL_GetError());
-		return 1;
-	}
-	SDL_GL_CreateContext(window);
+	glfwInit();
+	GLFWwindow *window = glfwCreateWindow(1280, 720, "platformer", 0, 0);
+	glfwMakeContextCurrent(window);
 
 	glewInit();
 
@@ -49,7 +56,6 @@ int main(int argc, char **argv)
 	GLuint mvp_l = glGetUniformLocation(shader, "mvp");
 
 	bool running = true;
-	SDL_Event event;
 
 	glm::mat4 projection = glm::ortho(0.f, (float) D_WIDTH, (float)D_HEIGHT, 0.f, -0.1f, 100.f);
 	glm::vec3 position = glm::vec3(0, 0, 1);
@@ -63,42 +69,14 @@ int main(int argc, char **argv)
 	float dy = 0;
 	const float gravity = 0.5;
 
-	while (running) {
+	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT);
-		SDL_PollEvent(&event);
+		glfwPollEvents();
 
 		dy += gravity;
 		if (r.y + r.h >= (float) D_HEIGHT) {
 			dy = 0;
 			set_rect_y(&r, D_HEIGHT - r.h);
-		}
-		switch (event.type) {
-			case SDL_QUIT:
-				running = false;
-				break;
-
-			case SDL_KEYDOWN:
-				switch (event.key.keysym.sym) {
-					case SDLK_d:
-						dx = 10;
-						break;
-					case SDLK_a:
-						dx = -10;
-						break;
-
-					case SDLK_SPACE:
-						dy = -10;
-						break;
-				}
-				break;
-			case SDL_KEYUP:
-				switch (event.key.keysym.sym) {
-					case SDLK_d:
-					case SDLK_a:
-						dx = 0;
-						break;
-				}
-				break;
 		}
 
 		move_rect(&r, dx, dy);
@@ -121,12 +99,9 @@ int main(int argc, char **argv)
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
-		SDL_GL_SwapWindow(window);
+		glfwSwapBuffers(window);
 	}
 
-	SDL_DestroyWindow(window);
-	free(vs_str);
-	free(fs_str);
 	free(r.raw_vs);
 	return 0;
 }

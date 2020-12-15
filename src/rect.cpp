@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <GL/glew.h>
 
 
 // The code for this struct is duplicated in rect.cpp and rect.h.
@@ -9,6 +10,8 @@ struct rect {
   float y;
   float w;
   float h;
+  GLuint VBO;
+  GLuint VAO;
 };
 
 

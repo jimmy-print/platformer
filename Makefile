@@ -1,4 +1,5 @@
-libs = -lSDL2 -lGLEW -lGL -lGLU -lm
+libs = -lglfw3 -lGLEW -lGL -lGLU  -ldl -lpthread -lX11 -lm
+all: test game
 test: test.cpp fileio.o
 	g++ -o test test.cpp fileio.o -I./include -Wall
 game: main.o fileio.o shader.o rect.o
