@@ -41,14 +41,14 @@ int main(int argc, char **argv)
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 	glEnableVertexAttribArray(0);
 
-	char *vs_str =
+	const char *vs_str =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 pos;\n"
 		"uniform mat4 mvp;\n"
 		"void main() {\n"
 		"gl_Position = mvp * vec4(pos.x, pos.y, pos.z, 1.0);\n"
 		"}\n";
-	char *fs_str =
+	const char *fs_str =
 		"#version 330 core\n"
 		"out vec3 color;\n"
 		"uniform vec3 c_color;\n"

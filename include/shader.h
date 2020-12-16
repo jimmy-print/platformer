@@ -2,6 +2,6 @@
 #define SHADER_H
 
 GLuint compileshader(GLuint type, const char* source_string);
-GLuint loadshader(char *vs_cstr, char *fs_cstr);
+GLuint loadshader(const char *vs_cstr, const char *fs_cstr);
 
 #endif
