@@ -15,14 +15,19 @@ int D_HEIGHT = 720;
 int main(int argc, char **argv)
 {
 	glfwInit();
+#ifdef __APPLE__
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
 	GLFWwindow *window = glfwCreateWindow(1280, 720, "platformer", 0, 0);
 	glfwMakeContextCurrent(window);
 
+#ifdef __APPLE__
+	glewExperimental = GL_TRUE;
+#endif
 	glewInit();
 
 	struct rect r = create_rect(0, 0, 10, 10);
