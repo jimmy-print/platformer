@@ -28,7 +28,9 @@ if __name__ == '__main__':
         deps += ' -lm'
     elif plt == 'Darwin':
         logging.info('using pkg-config and manual -framework OpenGL')
-        raise NotImplementedError
+        deps += pkg_config('glfw3') + ' '
+        deps += pkg_config('glew') + ' '
+        deps += ' -framework OpenGL'
 
     logging.info('all deps: %s', deps)
 
