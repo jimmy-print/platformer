@@ -2,9 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <stdbool.h>
-#include <unistd.h>
-
 #include <iostream>
 
 #include <fileio.h>
@@ -17,8 +14,28 @@ int D_HEIGHT = 720;
 
 int main(int argc, char **argv)
 {
-//	char *vs_str = get_file_str("vs.txt");
-//	char *fs_str = get_file_str("fs.txt");
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	GLFWwindow *window = glfwCreateWindow(1280, 720, "platformer", 0, 0);
+	glfwMakeContextCurrent(window);
+
+	glewInit();
+
+	struct rect r = create_rect(0, 0, 10, 10);
+
+	GLuint VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, r.raw_vs, GL_STATIC_DRAW);
+	glBindVertexArray(VAO);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+	glEnableVertexAttribArray(0);
+
 	char *vs_str =
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 pos;\n"
@@ -33,29 +50,9 @@ int main(int argc, char **argv)
 		"void main() {\n"
 		"color = c_color;\n"
 		"}\n";
-
-	glfwInit();
-	GLFWwindow *window = glfwCreateWindow(1280, 720, "platformer", 0, 0);
-	glfwMakeContextCurrent(window);
-
-	glewInit();
-
-	struct rect r = create_rect(0, 0, 10, 10);
-
-	GLuint VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, r.raw_vs, GL_STATIC_DRAW);
-	glBindVertexArray(VAO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-	glEnableVertexAttribArray(0);
-
 	GLuint shader = loadshader(vs_str, fs_str);
 	GLuint c_color_l = glGetUniformLocation(shader, "c_color");
 	GLuint mvp_l = glGetUniformLocation(shader, "mvp");
-
-	bool running = true;
 
 	glm::mat4 projection = glm::ortho(0.f, (float) D_WIDTH, (float)D_HEIGHT, 0.f, -0.1f, 100.f);
 	glm::vec3 position = glm::vec3(0, 0, 1);
@@ -70,6 +67,7 @@ int main(int argc, char **argv)
 	const float gravity = 0.5;
 
 	while (!glfwWindowShouldClose(window)) {
+		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glfwPollEvents();
 
@@ -89,19 +87,20 @@ int main(int argc, char **argv)
 			dx = 0;
 		}
 
-		glBindVertexArray(VAO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, r.raw_vs, GL_STATIC_DRAW);
-
+		glEnableVertexAttribArray(0);
 		glUseProgram(shader);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, r.raw_vs, GL_STATIC_DRAW);
+
 		glUniform3f(c_color_l, 1.0, 1.0, 0.0);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_QUADS, 0, 8);
+		glDrawArrays(GL_TRIANGLES, 0, 12);
+		glDisableVertexAttribArray(0);
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
 		glfwSwapBuffers(window);
 	}
 
-	free(r.raw_vs);
-	return 0;
+    return 0;
 }
