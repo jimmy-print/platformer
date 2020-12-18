@@ -107,6 +107,10 @@ int main(int argc, char **argv)
 			set_rect_y(&r, D_HEIGHT - r.h);
 		}
 
+		if (km[GLFW_KEY_SPACE]) {
+			dy = -10;
+		}
+
 		if (r.x < 0) {
 			r.x = 0;
 			dx = 0;
@@ -132,5 +136,5 @@ int main(int argc, char **argv)
 		glfwSwapBuffers(window);
 	}
 
-    return 0;
+	return 0;
 }
