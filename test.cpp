@@ -18,7 +18,10 @@ struct p get_point(char *s);
 
 int main()
 {
-	char *file_cstr = get_file_str("map.txt");
+    std::string file_s = get_file_str("map.txt");
+    const char *cstr = file_s.c_str();
+    char *file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
+    strcpy(file_cstr, cstr);
 	char *copy_cstr = (char*) malloc(strlen(file_cstr) * sizeof(char));
 	strcpy(copy_cstr, file_cstr);
 	int l = get_num_lines(file_cstr);

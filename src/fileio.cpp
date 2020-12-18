@@ -2,6 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <fstream>
+#include <string>
+#include <iostream>
+
+
 int get_file_length(const char *file)
 {
 	FILE *f = fopen(file, "r");
@@ -17,18 +22,10 @@ int get_file_length(const char *file)
 	return size;
 }
 
-char *get_file_str(const char *file)
+std::string get_file_str(const char *file)
 {
-	int size = get_file_length(file);
-
-	char buf[size + 1];
-	FILE *f = fopen(file, "r");
-	fread(buf, sizeof(char), size, f);
-	fclose(f);
-	buf[size] = '\0';
-
-	char *str = (char *) malloc((size + 1) * sizeof(char));
-	strcpy(buf, str);
-
-	return str;
+    std::ifstream f(file);
+    std::string s((std::istreambuf_iterator<char>(f)),
+		  (std::istreambuf_iterator<char>()));
+    return s;
 }
