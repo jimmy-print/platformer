@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
+#include <map>
 
 #include <fileio.h>
 #include <shader.h>
@@ -10,6 +11,17 @@
 
 int D_WIDTH = 1280;
 int D_HEIGHT = 720;
+
+float dx = 0;
+float dy = 0;
+
+std::map<int, int> km;
+
+
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+	km[key] = glfwGetKey(window, key);
+}
 
 
 int main(int argc, char **argv)
@@ -24,6 +36,7 @@ int main(int argc, char **argv)
 
 	GLFWwindow *window = glfwCreateWindow(1280, 720, "platformer", 0, 0);
 	glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window, key_callback);
 
 #ifdef __APPLE__
 	glewExperimental = GL_TRUE;
@@ -67,30 +80,42 @@ int main(int argc, char **argv)
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
 
-	float dx = 0;
-	float dy = 0;
+
 	const float gravity = 0.5;
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
+
 		glfwPollEvents();
 
 		dy += gravity;
+		
+		if (km[GLFW_KEY_A]) {
+			dx = -10;
+		}
+		if (km[GLFW_KEY_D]) {
+			dx = 10;
+		}
+		if (km[GLFW_KEY_D] && km[GLFW_KEY_A]) {
+			dx = 0;
+		}
+		if (!km[GLFW_KEY_D] && !km[GLFW_KEY_A]) { dx = 0; }
+
 		if (r.y + r.h >= (float) D_HEIGHT) {
 			dy = 0;
 			set_rect_y(&r, D_HEIGHT - r.h);
 		}
 
-		move_rect(&r, dx, dy);
-
-		if (r.x <= 0) {
+		if (r.x < 0) {
 			r.x = 0;
 			dx = 0;
-		} else if (r.x + r.w >= D_WIDTH) {
+		} else if (r.x + r.w > D_WIDTH) {
 			r.x = D_WIDTH - r.w;
 			dx = 0;
 		}
+
+		move_rect(&r, dx, dy);
 
 		glEnableVertexAttribArray(0);
 		glUseProgram(shader);
