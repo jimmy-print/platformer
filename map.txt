@@ -1,5 +1,5 @@
-#specified in raw_vs format (4 vertices of quad)
-#comma sep x and y
-#space sep vertex
-10,10 10,20 20,20 20,10
+#lines starting with # are comments
+#first pair is starting point
+#proceeds counterclockwise
 100,100 100,200 200,200 200,100
+800,500 800,600 1000,600 1000,500

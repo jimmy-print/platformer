@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <rect.h>
+#include <iostream>
 
 char **lines(char *file_cstr, int len);
 char **coords(char *line);
@@ -15,13 +15,45 @@ struct p {
 };
 
 struct p get_point(char *s);
+std::string file_s = get_file_str("map.txt");
 
-int main()
+float **get_all_rects(int *num_of_rects)
 {
-    std::string file_s = get_file_str("map.txt");
-    const char *cstr = file_s.c_str();
-    char *file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
-    strcpy(file_cstr, cstr);
+	const char *cstr = file_s.c_str();
+	char *file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
+	strcpy(file_cstr, cstr);
+	char *copy_cstr = (char*) malloc(strlen(file_cstr) * sizeof(char));
+	strcpy(copy_cstr, file_cstr);
+	int l = get_num_lines(file_cstr);
+	*num_of_rects = l;
+	char **ls = lines(copy_cstr, l);
+
+	char **cs;
+	float *tmp_vs; // for each rect
+	float **vss = (float**) malloc(l * sizeof(float*));
+	size_t vs_index;
+	for (int i = 0; i < l; i++) {
+		cs = coords(ls[i]);
+		tmp_vs = (float*) malloc(8 * sizeof(float));
+		vs_index = -1;
+		for (int j = 0; j < 4; j++) {
+			struct p p = get_point(cs[j]);
+
+			vs_index++;
+			tmp_vs[vs_index] = p.x;
+			vs_index++;
+			tmp_vs[vs_index] = p.y;
+		}
+		vss[i] = tmp_vs;
+	}
+	return vss;
+}
+
+void test_whole_file()
+{
+	const char *cstr = file_s.c_str();
+	char *file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
+	strcpy(file_cstr, cstr);
 	char *copy_cstr = (char*) malloc(strlen(file_cstr) * sizeof(char));
 	strcpy(copy_cstr, file_cstr);
 	int l = get_num_lines(file_cstr);

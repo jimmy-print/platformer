@@ -8,6 +8,7 @@
 #include <fileio.h>
 #include <shader.h>
 #include <rect.h>
+#include <map.h>
 
 int D_WIDTH = 1280;
 int D_HEIGHT = 720;
@@ -45,6 +46,26 @@ int main(int argc, char **argv)
 
 	struct rect r = create_rect(0, 0, 10, 10);
 
+	int num_of_rects;
+	float **vss = get_all_rects(&num_of_rects);
+
+	int starting_point_x;
+	int starting_point_y;
+
+	int width, height;
+	
+	struct rect platforms[num_of_rects];
+	for (int i = 0; i < num_of_rects; i++) {
+		starting_point_x = vss[i][0];
+		starting_point_y = vss[i][1];
+
+		height = vss[i][3] - starting_point_y;
+		width = vss[i][4] - starting_point_x;
+
+		struct rect tmp = create_rect(starting_point_x, starting_point_x, width, height);
+		platforms[i] = tmp;
+	}
+
 	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -79,7 +100,6 @@ int main(int argc, char **argv)
 				     glm::vec3(0, 1, 0));
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
-
 
 	const float gravity = 0.5;
 
