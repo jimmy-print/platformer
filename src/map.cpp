@@ -44,7 +44,6 @@ float **get_all_rects(int *num_of_rects)
 		vs_index = -1;
 		for (int j = 0; j < 2; j++) {
 			struct duo d = get_duo(cs[j]);
-			std::cout << d.a << " " << d.b << "\n";
 			vs_index++;
 			tmp_vs[vs_index] = d.a;
 			vs_index++;
