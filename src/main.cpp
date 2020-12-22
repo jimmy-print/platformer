@@ -62,18 +62,8 @@ int main(int argc, char **argv)
 		height = vss[i][3] - starting_point_y;
 		width = vss[i][4] - starting_point_x;
 
-		struct rect tmp = create_rect(starting_point_x, starting_point_x, width, height);
-		platforms[i] = tmp;
+		platforms[i] = create_rect(starting_point_x, starting_point_x, width, height);
 	}
-
-	GLuint VAO, VBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, r.raw_vs, GL_STATIC_DRAW);
-	glBindVertexArray(VAO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-	glEnableVertexAttribArray(0);
 
 	const char *vs_str =
 		"#version 330 core\n"
@@ -147,9 +137,20 @@ int main(int argc, char **argv)
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, r.raw_vs, GL_STATIC_DRAW);
 
 		glUniform3f(c_color_l, 1.0, 1.0, 0.0);
-		glBindVertexArray(VAO);
+		glBindVertexArray(r.VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
 		glDisableVertexAttribArray(0);
+
+		for (auto p : platforms) {
+			glEnableVertexAttribArray(0);
+			glUseProgram(shader);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, p.raw_vs, GL_STATIC_DRAW);
+			glUniform3f(c_color_l, 1.0, 1.0, 1.0);
+			glBindVertexArray(p.VAO);
+			glDrawArrays(GL_TRIANGLES, 0, 12);
+			glDisableVertexAttribArray(0);
+		}
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 

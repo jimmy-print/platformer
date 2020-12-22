@@ -49,25 +49,6 @@ float **get_all_rects(int *num_of_rects)
 	return vss;
 }
 
-void test_whole_file()
-{
-	const char *cstr = file_s.c_str();
-	char *file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
-	strcpy(file_cstr, cstr);
-	char *copy_cstr = (char*) malloc(strlen(file_cstr) * sizeof(char));
-	strcpy(copy_cstr, file_cstr);
-	int l = get_num_lines(file_cstr);
-	char **ls = lines(copy_cstr, l);
-
-	char **cs;
-	for (int i = 0; i < l; i++) {
-		cs = coords(ls[i]);
-		for (int j = 0; j < 4; j++) {
-			struct p p = get_point(cs[j]);
-			printf("(%d, %d)\n", p.x, p.y);
-		}
-	}
-}
 
 char **lines(char *file_cstr, int len)
 {
