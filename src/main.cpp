@@ -48,21 +48,17 @@ int main(int argc, char **argv)
 
 	int num_of_rects;
 	float **vss = get_all_rects(&num_of_rects);
-
-	int starting_point_x;
-	int starting_point_y;
-
-	int width, height;
+	
+	int x, y, w, h;
 	
 	struct rect platforms[num_of_rects];
 	for (int i = 0; i < num_of_rects; i++) {
-		starting_point_x = vss[i][0];
-		starting_point_y = vss[i][1];
+		x = vss[i][0];
+		y = vss[i][1];
+		w = vss[i][2];
+		h = vss[i][3];
 
-		height = vss[i][3] - starting_point_y;
-		width = vss[i][4] - starting_point_x;
-
-		platforms[i] = create_rect(starting_point_x, starting_point_x, width, height);
+		platforms[i] = create_rect(x, y, w, h);
 	}
 
 	const char *vs_str =

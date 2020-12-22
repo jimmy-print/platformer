@@ -9,16 +9,22 @@ char **lines(char *file_cstr, int len);
 char **coords(char *line);
 int get_num_lines(char *file_cstr);
 
-struct p {
-	int x;
-	int y;
+struct duo {
+	int a;
+	int b;
 };
 
-struct p get_point(char *s);
+struct duo get_duo(char *s);
 std::string file_s = get_file_str("map.txt");
 
 float **get_all_rects(int *num_of_rects)
 {
+	/*
+	  [
+	    [10, 20, 200, 10],
+	    [500, 600, 10, 100]
+	  ]
+	 */
 	const char *cstr = file_s.c_str();
 	char *file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
 	strcpy(file_cstr, cstr);
@@ -34,15 +40,15 @@ float **get_all_rects(int *num_of_rects)
 	size_t vs_index;
 	for (int i = 0; i < l; i++) {
 		cs = coords(ls[i]);
-		tmp_vs = (float*) malloc(8 * sizeof(float));
+		tmp_vs = (float*) malloc(4 * sizeof(float));
 		vs_index = -1;
-		for (int j = 0; j < 4; j++) {
-			struct p p = get_point(cs[j]);
-
+		for (int j = 0; j < 2; j++) {
+			struct duo d = get_duo(cs[j]);
+			std::cout << d.a << " " << d.b << "\n";
 			vs_index++;
-			tmp_vs[vs_index] = p.x;
+			tmp_vs[vs_index] = d.a;
 			vs_index++;
-			tmp_vs[vs_index] = p.y;
+			tmp_vs[vs_index] = d.b;
 		}
 		vss[i] = tmp_vs;
 	}
@@ -68,9 +74,28 @@ char **lines(char *file_cstr, int len)
 	return out;
 }
 
+struct duo get_duo(char *s)
+{
+	struct duo d;
+	const char sep[2] = ",";
+	char *tok;
+	tok = strtok(s, sep);
+	int i = 0;
+	while (tok != NULL) {
+		if (i == 0) {
+			d.a = atoi(tok);
+		} else if (i == 1) {
+			d.b = atoi(tok);
+		}
+		i++;
+		tok = strtok(NULL, sep);
+	}
+	return d;
+}
+
 char **coords(char *line)
 {
-	char **out = (char **) malloc(4 * sizeof(char*));
+	char **out = (char **) malloc(2 * sizeof(char*));
 	const char sep[2] = " ";
 	char *tok;
 	tok = strtok(line, sep);
@@ -81,25 +106,6 @@ char **coords(char *line)
 		tok = strtok(NULL, sep);
 	}
 	return out;
-}
-
-struct p get_point(char *s)
-{
-	struct p p;
-	const char sep[2] = ",";
-	char *tok;
-	tok = strtok(s, sep);
-	int i = 0;
-	while (tok != NULL) {
-		if (i == 0) {
-			p.x = atoi(tok);
-		} else if (i == 1) {
-			p.y = atoi(tok);
-		}
-		i++;
-		tok = strtok(NULL, sep);
-	}
-	return p;
 }
 
 int get_num_lines(char *file_cstr)
