@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 
-	GLFWwindow *window = glfwCreateWindow(1280, 720, "platformer", 0, 0);
+	GLFWwindow *window = glfwCreateWindow(D_WIDTH, D_HEIGHT, "platformer", 0, 0);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 
@@ -153,8 +153,8 @@ int main(int argc, char **argv)
 			}
 		}
 
-		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 		move_rect(&r, dx, dy);
+		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
 		glfwSwapBuffers(window);
 	}
