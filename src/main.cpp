@@ -89,6 +89,7 @@ int main(int argc, char **argv)
 
 	const float gravity = 0.5;
 
+	bool on_ground = false;
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -111,10 +112,9 @@ int main(int argc, char **argv)
 		if (r.y + r.h >= (float) D_HEIGHT) {
 			dy = 0;
 			set_rect_y(&r, D_HEIGHT - r.h);
-		}
-
-		if (km[GLFW_KEY_SPACE]) {
-			dy = -10;
+			on_ground = true;
+		} else {
+			on_ground = false;
 		}
 
 		if (r.x < 0) {
@@ -149,7 +149,16 @@ int main(int argc, char **argv)
 				if (dy >= 0) {
 					dy = 0;
 					set_rect_y(&r, p.y - r.h);
+					on_ground = true;
+				} else {
+					on_ground = false;
 				}
+			}
+		}
+
+		if (km[GLFW_KEY_SPACE]) {
+			if (on_ground) {
+				dy = -10;
 			}
 		}
 
