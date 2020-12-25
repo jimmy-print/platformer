@@ -125,8 +125,6 @@ int main(int argc, char **argv)
 			dx = 0;
 		}
 
-		move_rect(&r, dx, dy);
-
 		glEnableVertexAttribArray(0);
 		glUseProgram(shader);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -146,9 +144,17 @@ int main(int argc, char **argv)
 			glBindVertexArray(p.VAO);
 			glDrawArrays(GL_TRIANGLES, 0, 12);
 			glDisableVertexAttribArray(0);
+
+			if (overlap(r, p)) {
+				if (dy >= 0) {
+					dy = 0;
+					set_rect_y(&r, p.y - r.h);
+				}
+			}
 		}
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
+		move_rect(&r, dx, dy);
 
 		glfwSwapBuffers(window);
 	}

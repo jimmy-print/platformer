@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <GL/glew.h>
 
-
 // The code for this struct is duplicated in rect.cpp and rect.h.
 struct rect {
 	float *raw_vs;
@@ -12,6 +11,14 @@ struct rect {
 	GLuint VAO;
 	GLuint VBO;
 };
+
+bool overlap(struct rect r0, struct rect r1)
+{
+	if ((r0.x) <= (r1.x + r1.w) && (r0.x + r0.w) >= (r1.x) && (r0.y) <= (r1.y + r1.h) && (r0.y + r0.h) >= (r1.y)) {
+		return true;
+	}
+	return false;
+}
 
 struct rect create_rect(float x, float y, float w, float h)
 {
