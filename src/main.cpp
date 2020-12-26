@@ -150,6 +150,9 @@ int main(int argc, char **argv)
 					dy = 0;
 					set_rect_y(&r, p.y - r.h);
 					on_ground = true;
+				} else if (dy < 0) {
+					dy = 0;
+					set_rect_y(&r, p.y + p.h + 1);
 				} else {
 					on_ground = false;
 				}
