@@ -10,6 +10,7 @@ public:
 	float x, y, w, h;
 	std::vector<float> raw_vs;
 	GLuint VAO, VBO;
+	float terminal_velocity = 15;
 public:
 	Rect(float xp, float yp, float wp, float hp)
 	{

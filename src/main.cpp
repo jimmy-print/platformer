@@ -168,6 +168,10 @@ int main(int argc, char **argv)
 			}
 		}
 
+		if (dy >= r.terminal_velocity) {
+			dy = r.terminal_velocity;
+		}
+		
 		r.move(dx, dy);
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
