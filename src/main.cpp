@@ -43,10 +43,7 @@ int main(int argc, char **argv)
 	glewExperimental = GL_TRUE;
 #endif
 	glewInit();
-	std::cout << "log\n";
-//	struct rect r = create_rect(0, 0, 10, 10);
 	Rect r(0, 0, 10, 10);
-		std::cout << "log\n";
 	int num_of_rects;
 	float **vss = get_all_rects(&num_of_rects);
 	
