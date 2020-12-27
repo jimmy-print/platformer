@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     Makefile = '''
 libs = {}
-game: main.o map.o fileio.o shader.o
+game: main.o map.o fileio.o shader.o include
 	g++ -o game main.o map.o fileio.o shader.o $(libs)
 
 main.o: src/main.cpp
