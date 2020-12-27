@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 			dx = 10;
 		}
 		if (km[GLFW_KEY_D] && km[GLFW_KEY_A]) {
-			r.set_x(0);
+			dx = 0;
 		}
 		if (!km[GLFW_KEY_D] && !km[GLFW_KEY_A]) { dx = 0; }
 
