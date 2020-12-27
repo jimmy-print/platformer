@@ -43,22 +43,23 @@ int main(int argc, char **argv)
 	glewExperimental = GL_TRUE;
 #endif
 	glewInit();
-
-	struct rect r = create_rect(0, 0, 10, 10);
-
+	std::cout << "log\n";
+//	struct rect r = create_rect(0, 0, 10, 10);
+	Rect r(0, 0, 10, 10);
+		std::cout << "log\n";
 	int num_of_rects;
 	float **vss = get_all_rects(&num_of_rects);
 	
 	int x, y, w, h;
 	
-	struct rect platforms[num_of_rects];
+	std::vector<Rect> platforms;
 	for (int i = 0; i < num_of_rects; i++) {
 		x = vss[i][0];
 		y = vss[i][1];
 		w = vss[i][2];
 		h = vss[i][3];
 
-		platforms[i] = create_rect(x, y, w, h);
+		platforms.push_back( Rect(x, y, w, h));
 	}
 
 	const char *vs_str =
@@ -90,6 +91,8 @@ int main(int argc, char **argv)
 	const float gravity = 0.5;
 
 	bool on_ground = false;
+
+
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -105,30 +108,30 @@ int main(int argc, char **argv)
 			dx = 10;
 		}
 		if (km[GLFW_KEY_D] && km[GLFW_KEY_A]) {
-			dx = 0;
+			r.set_x(0);
 		}
 		if (!km[GLFW_KEY_D] && !km[GLFW_KEY_A]) { dx = 0; }
 
 		if (r.y + r.h >= (float) D_HEIGHT) {
 			dy = 0;
-			set_rect_y(&r, D_HEIGHT - r.h);
+			r.set_y(D_HEIGHT - r.h);
 			on_ground = true;
 		} else {
 			on_ground = false;
 		}
 
 		if (r.x < 0) {
-			r.x = 0;
+			r.set_x(0);
 			dx = 0;
 		} else if (r.x + r.w > D_WIDTH) {
-			r.x = D_WIDTH - r.w;
+			r.set_x(D_WIDTH - r.w);
 			dx = 0;
 		}
 
 		glEnableVertexAttribArray(0);
 		glUseProgram(shader);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, r.raw_vs, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &r.raw_vs[0], GL_STATIC_DRAW);
 
 		glUniform3f(c_color_l, 1.0, 1.0, 0.0);
 		glBindVertexArray(r.VAO);
@@ -139,20 +142,20 @@ int main(int argc, char **argv)
 			glEnableVertexAttribArray(0);
 			glUseProgram(shader);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, p.raw_vs, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &p.raw_vs[0], GL_STATIC_DRAW);
 			glUniform3f(c_color_l, 1.0, 1.0, 1.0);
 			glBindVertexArray(p.VAO);
 			glDrawArrays(GL_TRIANGLES, 0, 12);
 			glDisableVertexAttribArray(0);
 
-			if (overlap(r, p)) {
+			if (r.overlap(p)) {
 				if (dy >= 0) {
 					dy = 0;
-					set_rect_y(&r, p.y - r.h);
+					r.set_y(p.y - r.h);
 					on_ground = true;
 				} else if (dy < 0) {
 					dy = 0;
-					set_rect_y(&r, p.y + p.h + 1);
+					r.set_y(p.y + p.h + 1);
 				} else {
 					on_ground = false;
 				}
@@ -165,7 +168,7 @@ int main(int argc, char **argv)
 			}
 		}
 
-		move_rect(&r, dx, dy);
+		r.move(dx, dy);
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
 		glfwSwapBuffers(window);

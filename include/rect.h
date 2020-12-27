@@ -1,21 +1,80 @@
 #include <GL/glew.h>
+#include <vector>
 
 #ifndef RECT_H
 #define RECT_H
 
-struct rect {
-	float *raw_vs;
-	float x;
-	float y;
-	float w;
-	float h;
-	GLuint VAO;
-	GLuint VBO;
+class Rect
+{
+public:
+	float x, y, w, h;
+	std::vector<float> raw_vs;
+	GLuint VAO, VBO;
+public:
+	Rect(float xp, float yp, float wp, float hp)
+	{
+		x = xp;
+		y = yp;
+		w = wp;
+		h = hp;
+
+		// 12 element vector, composed of two 6 element triangles
+		raw_vs = {
+			x, y,
+			x, y + h,
+			x + w, y + h,
+
+			x, y,
+			x + w, y,
+			x + w, y + h
+		};
+
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &raw_vs[0], GL_STATIC_DRAW);
+		glBindVertexArray(VAO);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*) 0);
+		glEnableVertexAttribArray(0);
+	}
+
+	void set_x(float xp)
+	{
+		x = xp;
+
+		raw_vs.at(0) = x;
+		raw_vs.at(2) = x;
+		raw_vs.at(4) = x + w;
+		raw_vs.at(6) = x;
+		raw_vs.at(8) = x + w;
+		raw_vs.at(10) = x + w;
+	}
+
+	void set_y(float yp)
+	{
+		y = yp;
+
+		raw_vs.at(1) = y;
+		raw_vs.at(3) = y + h;
+		raw_vs.at(5) = y + h;
+		raw_vs.at(7) = y;
+		raw_vs.at(9) = y;
+		raw_vs.at(11) = y + h;
+	}
+
+	void move(float dx, float dy)
+	{
+		set_x(x + dx);
+		set_y(y + dy);
+	}
+
+	bool overlap(Rect r1)
+	{
+		if ((x) <= (r1.x + r1.w) && (x + w) >= (r1.x) && (y) <= (r1.y + r1.h) && (y + h) >= (r1.y)) {
+			return true;
+		}
+		return false;
+	}
 };
-bool overlap(struct rect r0, struct rect r1);
-struct rect create_rect(float x, float y, float w, float h);
-void move_rect(struct rect *r, float dx, float dy);
-void set_rect_y(struct rect *r, float y);
-void set_rect_x(struct rect *r, float x);
 
 #endif
