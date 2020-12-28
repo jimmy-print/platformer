@@ -58,6 +58,18 @@ void Rect::move(float dx, float dy)
 	set_y(y + dy);
 }
 
+void Rect::draw(GLuint shader, GLuint c_color_l, float r, float g, float b)
+{
+    glUseProgram(shader);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
+    glEnableVertexAttribArray(0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &raw_vs[0], GL_STATIC_DRAW);
+    glUniform3f(c_color_l, r, g, b);
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 12);
+    glDisableVertexAttribArray(0);
+}
+
 bool Rect::overlap(Rect r1)
 {
 	if ((x) <= (r1.x + r1.w) && (x + w) >= (r1.x) && (y) <= (r1.y + r1.h) && (y + h) >= (r1.y)) {
