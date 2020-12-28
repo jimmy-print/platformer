@@ -125,25 +125,10 @@ int main(int argc, char **argv)
 			dx = 0;
 		}
 
-		glEnableVertexAttribArray(0);
-		glUseProgram(shader);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &r.raw_vs[0], GL_STATIC_DRAW);
-
-		glUniform3f(c_color_l, 1.0, 1.0, 0.0);
-		glBindVertexArray(r.VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 12);
-		glDisableVertexAttribArray(0);
+        r.draw(shader, c_color_l, 1.0, 1.0, 0.0);
 
 		for (auto p : platforms) {
-			glEnableVertexAttribArray(0);
-			glUseProgram(shader);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &p.raw_vs[0], GL_STATIC_DRAW);
-			glUniform3f(c_color_l, 1.0, 1.0, 1.0);
-			glBindVertexArray(p.VAO);
-			glDrawArrays(GL_TRIANGLES, 0, 12);
-			glDisableVertexAttribArray(0);
+			p.draw(shader, c_color_l, 1.0, 1.0, 1.0);
 
 			if (r.overlap(p)) {
 				if (dy >= 0) {
