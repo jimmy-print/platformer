@@ -61,10 +61,10 @@ int main(int argc, char **argv)
 
 	const char *vs_str =
 		"#version 330 core\n"
-		"layout (location = 0) in vec3 pos;\n"
+		"layout (location = 0) in vec2 pos;\n"
 		"uniform mat4 mvp;\n"
 		"void main() {\n"
-		"gl_Position = mvp * vec4(pos.x, pos.y, pos.z, 1.0);\n"
+		"gl_Position = mvp * vec4(pos.x, pos.y, 0.0, 1.0);\n"
 		"}\n";
 	const char *fs_str =
 		"#version 330 core\n"
