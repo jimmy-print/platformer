@@ -5,19 +5,19 @@
 
 #include <iostream>
 
-char **lines(char *file_cstr, int len);
-char **coords(char *line);
-int get_num_lines(char *file_cstr);
+char** lines(char* file_cstr, int len);
+char** coords(char* line);
+int get_num_lines(char* file_cstr);
 
 struct duo {
 	int a;
 	int b;
 };
 
-struct duo get_duo(char *s);
+struct duo get_duo(char* s);
 std::string file_s = get_file_str("map.txt");
 
-float **get_all_rects(int *num_of_rects)
+float** get_all_rects(int* num_of_rects)
 {
 	/*
 	  [
@@ -25,18 +25,18 @@ float **get_all_rects(int *num_of_rects)
 	    [500, 600, 10, 100]
 	  ]
 	 */
-	const char *cstr = file_s.c_str();
-	char *file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
+	const char* cstr = file_s.c_str();
+	char* file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
 	strcpy(file_cstr, cstr);
-	char *copy_cstr = (char*) malloc(strlen(file_cstr) * sizeof(char));
+	char* copy_cstr = (char*) malloc(strlen(file_cstr) * sizeof(char));
 	strcpy(copy_cstr, file_cstr);
 	int l = get_num_lines(file_cstr);
 	*num_of_rects = l;
-	char **ls = lines(copy_cstr, l);
+	char** ls = lines(copy_cstr, l);
 
-	char **cs;
-	float *tmp_vs; // for each rect
-	float **vss = (float**) malloc(l * sizeof(float*));
+	char** cs;
+	float* tmp_vs; // for each rect
+	float** vss = (float**) malloc(l * sizeof(float*));
 	size_t vs_index;
 	for (int i = 0; i < l; i++) {
 		cs = coords(ls[i]);
@@ -55,11 +55,11 @@ float **get_all_rects(int *num_of_rects)
 }
 
 
-char **lines(char *file_cstr, int len)
+char** lines(char* file_cstr, int len)
 {
-	char **out = (char **) malloc(len * sizeof(char*));
+	char** out = (char**) malloc(len * sizeof(char*));
 	const char sep[2] = "\n";
-	char *tok;
+	char* tok;
 	tok = strtok(file_cstr, sep);
 	int i = 0;
 	while (tok != NULL) {
@@ -73,11 +73,11 @@ char **lines(char *file_cstr, int len)
 	return out;
 }
 
-struct duo get_duo(char *s)
+struct duo get_duo(char* s)
 {
 	struct duo d;
 	const char sep[2] = ",";
-	char *tok;
+	char* tok;
 	tok = strtok(s, sep);
 	int i = 0;
 	while (tok != NULL) {
@@ -92,11 +92,11 @@ struct duo get_duo(char *s)
 	return d;
 }
 
-char **coords(char *line)
+char** coords(char* line)
 {
-	char **out = (char **) malloc(2 * sizeof(char*));
+	char** out = (char**) malloc(2 * sizeof(char*));
 	const char sep[2] = " ";
-	char *tok;
+	char* tok;
 	tok = strtok(line, sep);
 	int i = 0;
 	while (tok != NULL) {
@@ -107,10 +107,10 @@ char **coords(char *line)
 	return out;
 }
 
-int get_num_lines(char *file_cstr)
+int get_num_lines(char* file_cstr)
 {
 	const char sep[2] = "\n";
-	char *tok;
+	char* tok;
 	int len = 0;
 	tok = strtok(file_cstr, sep);
 	while (tok != NULL) {

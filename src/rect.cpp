@@ -3,7 +3,7 @@
 #include <stb_image.h>
 #include <iostream>
 
-Rect::Rect(float xp, float yp, float wp, float hp, const char *file)
+Rect::Rect(float xp, float yp, float wp, float hp, const char* file)
 {
 	x = xp;
 	y = yp;
@@ -40,7 +40,7 @@ Rect::Rect(float xp, float yp, float wp, float hp, const char *file)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	int w, h, n;
-	unsigned char *data = stbi_load(file, &w, &h, &n, 0);
+	unsigned char* data = stbi_load(file, &w, &h, &n, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	} else {

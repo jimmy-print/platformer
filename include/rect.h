@@ -14,7 +14,7 @@ public:
 	size_t len;
 	GLuint texture;
 
-	Rect(float xp, float yp, float wp, float hp, const char *file);
+	Rect(float xp, float yp, float wp, float hp, const char* file);
 	void set_x(float xp);
 	void set_y(float yp);
 	void move(float dx, float dy);

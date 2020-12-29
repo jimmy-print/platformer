@@ -21,13 +21,13 @@ float dy = 0;
 std::map<int, int> km;
 
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	km[key] = glfwGetKey(window, key);
 }
 
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	glfwInit();
 #ifdef __APPLE__
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
 
-	GLFWwindow *window = glfwCreateWindow(D_WIDTH, D_HEIGHT, "platformer", 0, 0);
+	GLFWwindow* window = glfwCreateWindow(D_WIDTH, D_HEIGHT, "platformer", 0, 0);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
 
@@ -45,10 +45,10 @@ int main(int argc, char **argv)
 	glewExperimental = GL_TRUE;
 #endif
 	glewInit();
-	Rect r(0, 0, 10, 10, "pi.jpg");
+	Rect r(0, 0, 100, 100, "pi.jpg");
 	Rect background(0, 0, D_WIDTH, D_HEIGHT, "background.jpg");
 	int num_of_rects;
-	float **vss = get_all_rects(&num_of_rects);
+	float** vss = get_all_rects(&num_of_rects);
 
 	int x, y, w, h;
 	
@@ -64,8 +64,8 @@ int main(int argc, char **argv)
 
 	std::string vs_str = get_file_str("shaders/vs.vs");
 	std::string fs_str = get_file_str("shaders/fs.fs");
-	const char *vs_cstr = vs_str.c_str();
-	const char *fs_cstr = fs_str.c_str();
+	const char* vs_cstr = vs_str.c_str();
+	const char* fs_cstr = fs_str.c_str();
 	GLuint shader = loadshader(vs_cstr, fs_cstr);
 	GLuint mvp_l = glGetUniformLocation(shader, "mvp");
 
