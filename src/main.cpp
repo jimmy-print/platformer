@@ -10,6 +10,9 @@
 #include <rect.h>
 #include <map.h>
 
+#include <chrono>
+#include <string.h>
+
 #define LOG std::cout << "here\n";
 
 int D_WIDTH = 1280;
@@ -20,15 +23,31 @@ float dy = 0;
 
 std::map<int, int> km;
 
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	km[key] = glfwGetKey(window, key);
 }
 
 
+int init_time, now_time;
+bool logging;
+void log(std::string msg)
+{
+	if (logging) {
+		now_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		float diff = (float) (now_time - init_time) / 1000;
+		std::cout << diff << " " << msg << "\n";
+	}
+}
+
+
 int main(int argc, char** argv)
 {
+	if (argc > 1) {
+		logging = strcmp(argv[1], "-l") == 0 || strcmp(argv[1], "--logging") == 0;
+	}
+	init_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	log("init");
 	glfwInit();
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -40,18 +59,21 @@ int main(int argc, char** argv)
 	GLFWwindow* window = glfwCreateWindow(D_WIDTH, D_HEIGHT, "platformer", 0, 0);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
+	log("glfw init done");
 
 #ifdef __APPLE__
 	glewExperimental = GL_TRUE;
 #endif
 	glewInit();
+	log("glew init done");
+
 	Rect r(0, 0, 100, 100, "pi.jpg");
 	Rect background(0, 0, D_WIDTH, D_HEIGHT, "background.jpg");
 	int num_of_rects;
 	float** vss = get_all_rects(&num_of_rects);
 
 	int x, y, w, h;
-	
+
 	std::vector<Rect> platforms;
 	for (int i = 0; i < num_of_rects; i++) {
 		x = vss[i][0];
@@ -61,6 +83,7 @@ int main(int argc, char** argv)
 
 		platforms.push_back( Rect(x, y, w, h, "pi.jpg") );
 	}
+	log("rects loaded");
 
 	std::string vs_str = get_file_str("shaders/vs.vs");
 	std::string fs_str = get_file_str("shaders/fs.fs");
@@ -80,7 +103,7 @@ int main(int argc, char** argv)
 	const float gravity = 0.7;
 
 	bool on_ground = false;
-
+	log("init loop");
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -90,7 +113,7 @@ int main(int argc, char** argv)
 		background.draw(shader);
 
 		dy += gravity;
-		
+
 		if (km[GLFW_KEY_A]) {
 			dx = -10;
 		}
@@ -152,6 +175,6 @@ int main(int argc, char** argv)
 
 		glfwSwapBuffers(window);
 	}
-
+	log("quit");
 	return 0;
 }
