@@ -10,6 +10,8 @@
 #include <rect.h>
 #include <map.h>
 
+#define LOG std::cout << "here\n";
+
 int D_WIDTH = 1280;
 int D_HEIGHT = 720;
 
@@ -43,10 +45,11 @@ int main(int argc, char **argv)
 	glewExperimental = GL_TRUE;
 #endif
 	glewInit();
-	Rect r(0, 0, 10, 10);
+	Rect r(0, 0, 10, 10, "pi.jpg");
+	Rect background(0, 0, D_WIDTH, D_HEIGHT, "background.jpg");
 	int num_of_rects;
 	float **vss = get_all_rects(&num_of_rects);
-	
+
 	int x, y, w, h;
 	
 	std::vector<Rect> platforms;
@@ -56,7 +59,7 @@ int main(int argc, char **argv)
 		w = vss[i][2];
 		h = vss[i][3];
 
-		platforms.push_back( Rect(x, y, w, h));
+		platforms.push_back( Rect(x, y, w, h, "pi.jpg") );
 	}
 
 	std::string vs_str = get_file_str("shaders/vs.vs");
@@ -64,7 +67,6 @@ int main(int argc, char **argv)
 	const char *vs_cstr = vs_str.c_str();
 	const char *fs_cstr = fs_str.c_str();
 	GLuint shader = loadshader(vs_cstr, fs_cstr);
-	GLuint c_color_l = glGetUniformLocation(shader, "c_color");
 	GLuint mvp_l = glGetUniformLocation(shader, "mvp");
 
 	glm::mat4 projection = glm::ortho(0.f, (float) D_WIDTH, (float)D_HEIGHT, 0.f, -0.1f, 100.f);
@@ -75,16 +77,17 @@ int main(int argc, char **argv)
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
 
-	const float gravity = 0.5;
+	const float gravity = 0.7;
 
 	bool on_ground = false;
-
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glfwPollEvents();
+
+		background.draw(shader);
 
 		dy += gravity;
 		
@@ -115,10 +118,10 @@ int main(int argc, char **argv)
 			dx = 0;
 		}
 
-        r.draw(shader, c_color_l, 1.0, 1.0, 0.0);
+		r.draw(shader);
 
 		for (auto p : platforms) {
-			p.draw(shader, c_color_l, 1.0, 1.0, 1.0);
+			p.draw(shader);
 
 			if (r.overlap(p)) {
 				if (dy >= 0) {
@@ -143,8 +146,8 @@ int main(int argc, char **argv)
 		if (dy >= r.terminal_velocity) {
 			dy = r.terminal_velocity;
 		}
-		
-		r.move(dx, dy);
+
+   		r.move(dx, dy);
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
 		glfwSwapBuffers(window);
