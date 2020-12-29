@@ -59,21 +59,11 @@ int main(int argc, char **argv)
 		platforms.push_back( Rect(x, y, w, h));
 	}
 
-	const char *vs_str =
-		"#version 330 core\n"
-		"layout (location = 0) in vec2 pos;\n"
-		"uniform mat4 mvp;\n"
-		"void main() {\n"
-		"gl_Position = mvp * vec4(pos.x, pos.y, 0.0, 1.0);\n"
-		"}\n";
-	const char *fs_str =
-		"#version 330 core\n"
-		"out vec3 color;\n"
-		"uniform vec3 c_color;\n"
-		"void main() {\n"
-		"color = c_color;\n"
-		"}\n";
-	GLuint shader = loadshader(vs_str, fs_str);
+	std::string vs_str = get_file_str("shaders/vs.vs");
+	std::string fs_str = get_file_str("shaders/fs.fs");
+	const char *vs_cstr = vs_str.c_str();
+	const char *fs_cstr = fs_str.c_str();
+	GLuint shader = loadshader(vs_cstr, fs_cstr);
 	GLuint c_color_l = glGetUniformLocation(shader, "c_color");
 	GLuint mvp_l = glGetUniformLocation(shader, "mvp");
 
