@@ -2,3 +2,4 @@ game
 *.o
 Makefile
 *.swp
+*.xcf
