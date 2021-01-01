@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 	glewInit();
 	log("glew init done");
 
-	Rect r(0, 0, 100, 100, "pi.jpg");
+	Rect r(0, 0, 20, 20, "pi.jpg");
 	Rect background(0, 0, D_WIDTH, D_HEIGHT, "background.jpg");
 	int num_of_rects;
 	float** vss = get_all_rects(&num_of_rects);
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 		w = vss[i][2];
 		h = vss[i][3];
 
-		platforms.push_back( Rect(x, y, w, h, "pi.jpg") );
+		platforms.push_back( Rect(x, y, w, h, "tile.jpg") );
 	}
 	log("rects loaded");
 
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
 
-	const float gravity = 0.7;
+	const float gravity = 0.5;
 
 	bool on_ground = false;
 	log("init loop");
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 
 		glfwPollEvents();
 
-		background.draw(shader);
+		//	background.draw(shader);
 
 		dy += gravity;
 

@@ -10,12 +10,22 @@ Rect::Rect(float xp, float yp, float wp, float hp, const char* file)
 	w = wp;
 	h = hp;
 
-	raw_vs = {
-		x, y,          0,0,
-		x, y + h,      0,1,
-		x + w, y + h,  1,1,
-		x + w, y,      1,0
-	};
+	if (!strcmp(file, "tile.jpg")) {
+		std::cout << h/20 << "\n";
+		raw_vs = {
+			x, y,         0,0,
+			x, y + h,     0,h/20,
+			x + w, y + h, w/20,h/20,
+			x + w, y,     w/20,0
+		};
+	} else {
+		raw_vs = {
+			x, y,         0, 0,
+			x, y + h,     0, 1,
+			x + w, y + h, 1, 1,
+			x + w, y,     1, 0
+		};
+	}
 
 	len = raw_vs.size();
 
