@@ -11,7 +11,6 @@ Rect::Rect(float xp, float yp, float wp, float hp, const char* file)
 	h = hp;
 
 	if (!strcmp(file, "tile.jpg")) {
-		std::cout << h/20 << "\n";
 		raw_vs = {
 			x, y,         0,0,
 			x, y + h,     0,h/20,

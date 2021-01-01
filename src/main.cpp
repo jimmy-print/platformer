@@ -13,8 +13,6 @@
 #include <chrono>
 #include <string.h>
 
-#define LOG std::cout << "here\n";
-
 int D_WIDTH = 1280;
 int D_HEIGHT = 720;
 
