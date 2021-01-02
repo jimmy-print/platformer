@@ -9,8 +9,10 @@
 #include <shader.h>
 #include <rect.h>
 #include <map.h>
+#include <bullet.h>
 
 #include <chrono>
+#include <algorithm>
 #include <string.h>
 
 int D_WIDTH = 1280;
@@ -21,9 +23,29 @@ float dy = 0;
 
 std::map<int, int> km;
 
+void log(std::string msg);
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	km[key] = glfwGetKey(window, key);
+}
+
+struct package {
+	float x;
+	float y;
+	int dir;
+};
+std::vector<Bullet*> bullets;
+void mouse_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		float player_x = ((struct package*) glfwGetWindowUserPointer(window))->x;
+		float player_y = ((struct package*) glfwGetWindowUserPointer(window))->y;
+		float player_dir = ((struct package*) glfwGetWindowUserPointer(window))->dir;
+
+		Bullet* b = new Bullet(player_x, player_y, player_dir);
+		bullets.push_back(b);
+	}
 }
 
 
@@ -46,6 +68,7 @@ int main(int argc, char** argv)
 	}
 	init_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	log("init");
+
 	glfwInit();
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -57,6 +80,8 @@ int main(int argc, char** argv)
 	GLFWwindow* window = glfwCreateWindow(D_WIDTH, D_HEIGHT, "platformer", 0, 0);
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, mouse_callback);
+
 	log("glfw init done");
 
 #ifdef __APPLE__
@@ -66,6 +91,8 @@ int main(int argc, char** argv)
 	log("glew init done");
 
 	Rect r(0, 0, 20, 20, "pi.jpg");
+	// r is the player
+
 	Rect background(0, 0, D_WIDTH, D_HEIGHT, "background.jpg");
 	int num_of_rects;
 	float** vss = get_all_rects(&num_of_rects);
@@ -83,12 +110,21 @@ int main(int argc, char** argv)
 	}
 	log("rects loaded");
 
+	glPointSize(2);
+
 	std::string vs_str = get_file_str("shaders/vs.vs");
 	std::string fs_str = get_file_str("shaders/fs.fs");
 	const char* vs_cstr = vs_str.c_str();
 	const char* fs_cstr = fs_str.c_str();
 	GLuint shader = loadshader(vs_cstr, fs_cstr);
 	GLuint mvp_l = glGetUniformLocation(shader, "mvp");
+
+	std::string bullet_vs_str = get_file_str("shaders/bullet.vs");
+	std::string bullet_fs_str = get_file_str("shaders/bullet.fs");
+	const char* bullet_vs_cstr = bullet_vs_str.c_str();
+	const char* bullet_fs_cstr = bullet_fs_str.c_str();
+	GLuint bullet_shader = loadshader(bullet_vs_cstr, bullet_fs_cstr);
+	GLuint bullet_mvp_l = glGetUniformLocation(bullet_shader, "mvp");
 
 	glm::mat4 projection = glm::ortho(0.f, (float) D_WIDTH, (float)D_HEIGHT, 0.f, -0.1f, 100.f);
 	glm::vec3 position = glm::vec3(0, 0, 1);
@@ -101,14 +137,17 @@ int main(int argc, char** argv)
 	const float gravity = 0.5;
 
 	bool on_ground = false;
+
 	log("init loop");
+
+	struct package pack;
+	glfwSetWindowUserPointer(window, &pack);
+
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glfwPollEvents();
-
-		//	background.draw(shader);
 
 		dy += gravity;
 
@@ -169,7 +208,29 @@ int main(int argc, char** argv)
 		}
 
    		r.move(dx, dy);
+		pack = {r.x, r.y, r.dir};
+
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
+
+		glUseProgram(bullet_shader);
+		for (auto b : bullets) {
+			b->tick();
+			b->draw();
+		}
+		glUniformMatrix4fv(bullet_mvp_l, 1, GL_FALSE, &mvp[0][0]);
+		for (int i = 0; i < bullets.size(); i++) {
+			if (bullets[i]->get_x() > D_WIDTH|| bullets[i]->get_x() < 0) {
+				// Probably some kind of memory leak here
+				// Without the destructor, memory usage keeps on growing,
+				// and with the destructor it maxes out, but doesn't get smaller.
+				delete bullets[i];
+				bullets.erase(bullets.begin() + i);
+			}
+		}
+
+		for (auto b : bullets) {
+			assert((b->get_x() > D_WIDTH && b->get_x() < 0) == false);
+		}
 
 		glfwSwapBuffers(window);
 	}

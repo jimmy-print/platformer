@@ -8,6 +8,7 @@ class Rect
 {
 public:
 	float x, y, w, h;
+	int dir;
 	std::vector<float> raw_vs;
 	GLuint VAO, VBO;
 	float terminal_velocity;

@@ -10,6 +10,8 @@ Rect::Rect(float xp, float yp, float wp, float hp, const char* file)
 	w = wp;
 	h = hp;
 
+	dir = 1;
+
 	if (!strcmp(file, "tile.jpg")) {
 		raw_vs = {
 			x, y,         0,0,
@@ -82,6 +84,11 @@ void Rect::move(float dx, float dy)
 {
 	set_x(x + dx);
 	set_y(y + dy);
+	if (dx > 0) {
+		dir = 1;
+	} else if (dx < 0) {
+		dir = -1;
+	}
 }
 
 void Rect::draw(GLuint shader)
@@ -89,6 +96,7 @@ void Rect::draw(GLuint shader)
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glUseProgram(shader);
 	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) 0);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (2 * sizeof(float)));

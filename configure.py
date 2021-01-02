@@ -36,20 +36,21 @@ if __name__ == '__main__':
 
     Makefile = '''
 libs = {}
-game: main.o map.o fileio.o shader.o rect.o
-	g++ -o game main.o map.o fileio.o shader.o rect.o $(libs)
+game: main.o map.o fileio.o shader.o rect.o bullet.o
+	g++ -g -o game main.o map.o fileio.o shader.o rect.o bullet.o $(libs)
 
 main.o: src/main.cpp
-	g++ -c src/main.cpp -I./include -Wall
+	g++ -g -c src/main.cpp -I./include -Wall
 map.o: src/map.cpp
-	g++ -c src/map.cpp -I./include -Wall
+	g++ -g -c src/map.cpp -I./include -Wall
 fileio.o: src/fileio.cpp
-	g++ -c src/fileio.cpp -Wall
+	g++ -g -c src/fileio.cpp -Wall
 shader.o: src/shader.cpp
-	g++ -c src/shader.cpp -Wall
+	g++ -g -c src/shader.cpp -Wall
 rect.o: src/rect.cpp
-	g++ -c src/rect.cpp -I./include -Wall
-
+	g++ -g -c src/rect.cpp -I./include -Wall
+bullet.o: src/bullet.cpp
+	g++ -g -c src/bullet.cpp -I./include -Wall
 clean:
 	rm *.o
 '''.format(deps).strip()
@@ -58,4 +59,3 @@ clean:
 
     with open('Makefile', 'w') as f:
         f.write(Makefile)
-
