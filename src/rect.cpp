@@ -113,3 +113,11 @@ bool Rect::overlap(Rect r1)
 	}
 	return false;
 }
+
+bool Rect::hit(int xp, int yp)
+{
+	if (xp >= x && xp <= x + w && yp >= y && yp <= y + h) {
+		return true;
+	}
+	return false;
+}

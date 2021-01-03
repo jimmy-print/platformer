@@ -21,10 +21,10 @@ float** get_all_rects(int* num_of_rects)
 {
 	/*
 	  [
-	    [10, 20, 200, 10],
-	    [500, 600, 10, 100]
+	  [10, 20, 200, 10],
+	  [500, 600, 10, 100]
 	  ]
-	 */
+	*/
 	const char* cstr = file_s.c_str();
 	char* file_cstr = (char*) malloc(strlen(cstr) * sizeof(char));
 	strcpy(file_cstr, cstr);

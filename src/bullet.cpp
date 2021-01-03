@@ -63,3 +63,8 @@ int Bullet::get_x()
 {
 	return x;
 }
+
+int Bullet::get_y()
+{
+	return y;
+}

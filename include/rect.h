@@ -19,8 +19,9 @@ public:
 	void set_x(float xp);
 	void set_y(float yp);
 	void move(float dx, float dy);
-    void draw(GLuint shader);
+	void draw(GLuint shader);
 	bool overlap(Rect r1);
+	bool hit(int x, int y);
 };
 
 #endif

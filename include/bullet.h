@@ -11,6 +11,7 @@ public:
 	void draw();
 	std::vector<int> get_coord();
 	int get_x();
+	int get_y();
 private:
 	int x, y, dir;
 	int speed = 10;

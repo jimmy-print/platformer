@@ -93,6 +93,8 @@ int main(int argc, char** argv)
 	Rect r(0, 0, 20, 20, "pi.jpg");
 	// r is the player
 
+	Rect enemy(500, D_HEIGHT - 20, 20, 20, "enemy.jpg");
+
 	Rect background(0, 0, D_WIDTH, D_HEIGHT, "background.jpg");
 	int num_of_rects;
 	float** vss = get_all_rects(&num_of_rects);
@@ -208,6 +210,7 @@ int main(int argc, char** argv)
 		}
 
    		r.move(dx, dy);
+		enemy.draw(shader);
 		pack = {r.x, r.y, r.dir};
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
@@ -219,18 +222,35 @@ int main(int argc, char** argv)
 		}
 		glUniformMatrix4fv(bullet_mvp_l, 1, GL_FALSE, &mvp[0][0]);
 		for (int i = 0; i < bullets.size(); i++) {
-			if (bullets[i]->get_x() > D_WIDTH|| bullets[i]->get_x() < 0) {
+			if (bullets[i]->get_x() >= D_WIDTH|| bullets[i]->get_x() <= 0) {
 				// Probably some kind of memory leak here
 				// Without the destructor, memory usage keeps on growing,
 				// and with the destructor it maxes out, but doesn't get smaller.
 				delete bullets[i];
 				bullets.erase(bullets.begin() + i);
+			} else if (enemy.hit(bullets[i]->get_x(), bullets[i]->get_y())) {
+				// The else probably ensures that a double free error won't happen,
+				// in the case that objects intersect.
+				// A better future solution should be to keep track of which bullets
+				// have been freed and then don't free those again.
+				delete bullets[i];
+				bullets.erase(bullets.begin() + i);
+			}
+
+			for (auto p : platforms) {
+				if (p.hit(bullets[i]->get_x(), bullets[i]->get_y())) {
+					delete bullets[i];
+					bullets.erase(bullets.begin() + i);
+				}
 			}
 		}
 
 		for (auto b : bullets) {
 			assert((b->get_x() > D_WIDTH && b->get_x() < 0) == false);
 		}
+
+		printf("\r%d", bullets.size());
+		fflush(stdout);
 
 		glfwSwapBuffers(window);
 	}
