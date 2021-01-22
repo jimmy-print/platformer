@@ -18,6 +18,7 @@ if __name__ == '__main__':
     logging.info('system is %s', plt)
 
     deps = ''
+    misc = '-Wall'
     if plt == 'Linux':
         logging.info('using pkg-config and -ldl -lpthread -lm')
         deps += pkg_config('glfw3') + ' '
@@ -31,29 +32,35 @@ if __name__ == '__main__':
         deps += pkg_config('glfw3') + ' '
         deps += pkg_config('glew') + ' '
         deps += ' -framework OpenGL'
+    elif plt == 'Windows':
+        logging.info('using manual everything')
+        misc += ' -Iinclude -Llibs -DGLEW_STATIC'
+        deps += '-lglew32s -lglfw3 -lopengl32'
 
     logging.info('all deps: %s', deps)
 
     Makefile = '''
+objs = main.o bullet.o fileio.o map.o rect.o shader.o
+misc = {}
 libs = {}
-game: main.o map.o fileio.o shader.o rect.o bullet.o
-	g++ -g -o game main.o map.o fileio.o shader.o rect.o bullet.o $(libs)
+game: $(objs)
+	g++ -g -o game $(objs) $(misc) $(libs)
 
 main.o: src/main.cpp
-	g++ -g -c src/main.cpp -I./include -Wall
+	g++ -g -c src/main.cpp $(misc)
 map.o: src/map.cpp
-	g++ -g -c src/map.cpp -I./include -Wall
+	g++ -g -c src/map.cpp $(misc)
 fileio.o: src/fileio.cpp
-	g++ -g -c src/fileio.cpp -Wall
+	g++ -g -c src/fileio.cpp $(misc)
 shader.o: src/shader.cpp
-	g++ -g -c src/shader.cpp -Wall
+	g++ -g -c src/shader.cpp $(misc)
 rect.o: src/rect.cpp
-	g++ -g -c src/rect.cpp -I./include -Wall
+	g++ -g -c src/rect.cpp $(misc)
 bullet.o: src/bullet.cpp
-	g++ -g -c src/bullet.cpp -I./include -Wall
+	g++ -g -c src/bullet.cpp $(misc)
 clean:
 	rm *.o
-'''.format(deps).strip()
+'''.format(misc, deps).strip()
 
     logging.info('Makefile content:\n%s', Makefile)
 
