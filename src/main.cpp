@@ -90,8 +90,10 @@ int main(int argc, char** argv)
 	glewInit();
 	log("glew init done");
 
-	Rect r(0, 0, 20, 20, "pi.jpg");
-	// r is the player
+	Rect player(0, 0, 20, 20, "pi.jpg");
+	int player_speed = 7;
+	glPointSize(2);
+	int player_health = 100;
 
 	Rect enemy(500, D_HEIGHT - 20, 20, 20, "enemy.jpg");
 
@@ -111,8 +113,6 @@ int main(int argc, char** argv)
 		platforms.push_back( Rect(x, y, w, h, "tile.jpg") );
 	}
 	log("rects loaded");
-
-	glPointSize(2);
 
 	std::string vs_str = get_file_str("shaders/vs.vs");
 	std::string fs_str = get_file_str("shaders/fs.fs");
@@ -154,45 +154,45 @@ int main(int argc, char** argv)
 		dy += gravity;
 
 		if (km[GLFW_KEY_A]) {
-			dx = -10;
+			dx = -player_speed;
 		}
 		if (km[GLFW_KEY_D]) {
-			dx = 10;
+			dx = player_speed;
 		}
 		if (km[GLFW_KEY_D] && km[GLFW_KEY_A]) {
 			dx = 0;
 		}
 		if (!km[GLFW_KEY_D] && !km[GLFW_KEY_A]) { dx = 0; }
 
-		if (r.y + r.h >= (float) D_HEIGHT) {
+		if (player.y + player.h >= (float) D_HEIGHT) {
 			dy = 0;
-			r.set_y(D_HEIGHT - r.h);
+			player.set_y(D_HEIGHT - player.h);
 			on_ground = true;
 		} else {
 			on_ground = false;
 		}
 
-		if (r.x < 0) {
-			r.set_x(0);
+		if (player.x < 0) {
+			player.set_x(0);
 			dx = 0;
-		} else if (r.x + r.w > D_WIDTH) {
-			r.set_x(D_WIDTH - r.w);
+		} else if (player.x + player.w > D_WIDTH) {
+			player.set_x(D_WIDTH - player.w);
 			dx = 0;
 		}
 
-		r.draw(shader);
+		player.draw(shader);
 
 		for (auto p : platforms) {
 			p.draw(shader);
 
-			if (r.overlap(p)) {
+			if (player.overlap(p)) {
 				if (dy >= 0) {
 					dy = 0;
-					r.set_y(p.y - r.h);
+					player.set_y(p.y - player.h);
 					on_ground = true;
 				} else if (dy < 0) {
 					dy = 0;
-					r.set_y(p.y + p.h + 1);
+					player.set_y(p.y + p.h + 1);
 				} else {
 					on_ground = false;
 				}
@@ -205,13 +205,13 @@ int main(int argc, char** argv)
 			}
 		}
 
-		if (dy >= r.terminal_velocity) {
-			dy = r.terminal_velocity;
+		if (dy >= player.terminal_velocity) {
+			dy = player.terminal_velocity;
 		}
 
-   		r.move(dx, dy);
+		player.move(dx, dy);
 		enemy.draw(shader);
-		pack = {r.x, r.y, r.dir};
+		pack = {player.x, player.y, player.dir};
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
@@ -248,9 +248,6 @@ int main(int argc, char** argv)
 		for (auto b : bullets) {
 			assert((b->get_x() > D_WIDTH && b->get_x() < 0) == false);
 		}
-
-		printf("\r%d", bullets.size());
-		fflush(stdout);
 
 		glfwSwapBuffers(window);
 	}

@@ -102,7 +102,7 @@ void Rect::draw(GLuint shader)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * len, &raw_vs[0], GL_STATIC_DRAW);
-	glDrawArrays(GL_QUADS, 0, len);
+	glDrawArrays(GL_QUADS, 0, 4);
 	glDisableVertexAttribArray(0);
 }
 

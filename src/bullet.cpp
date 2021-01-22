@@ -46,10 +46,10 @@ void Bullet::draw()
 {
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) 0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, (void*) 0);
 	glEnableVertexAttribArray(0);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2, vs, GL_STATIC_DRAW);
-	glDrawArrays(GL_POINTS, 0, 2);
+	glDrawArrays(GL_POINTS, 0, 1);
 	glDisableVertexAttribArray(0);
 }
 
