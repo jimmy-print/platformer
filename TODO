@@ -1,0 +1,3 @@
+create Character and Platform class; make Rect class only for rendering
+fix semi memory leak for bullets
+add windows configure.py
