@@ -1,4 +1,4 @@
-fix bullets appearing at 0, 0 everywhere and also at platform corners on macos
+fix maybe bullet still at platform corners on macos
 create Character and Platform class; make Rect class only for rendering
 fix semi memory leak for bullets
 add windows configure.py
