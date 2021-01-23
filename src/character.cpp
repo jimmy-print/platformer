@@ -3,10 +3,12 @@
 #include <GL/glew.h>
 #include <iostream>
 
-Character::Character(int x, int y, int w, int h, std::string file)
+Character::Character(int x, int y, int w, int h, std::string file, int starting_health, std::string idp)
 {
 	rect = new Rect(x, y, w, h);
 	rect->sprite(file);
+	health = starting_health;
+	id = idp;
 }
 
 Character::~Character()
@@ -66,4 +68,10 @@ Character::get_h()
 void Character::draw(GLuint shader)
 {
 	rect->draw(shader);
+}
+
+
+void Character::print()
+{
+	printf("id %s health %d ", id.c_str(), health);
 }

@@ -102,9 +102,9 @@ int main(int argc, char** argv)
 	glewInit();
 	log("glew init done");
 
-	Character player(0, 0, 20, 20, "pi.jpg");
+	Character player(0, 0, 20, 20, "pi.jpg", 100, "player");
 
-	Character enemy(500, D_HEIGHT - 20, 20, 20, "enemy.jpg");
+	Character enemy(500, D_HEIGHT - 20, 20, 20, "enemy.jpg", 100, "enemy0");
 
 	Rect background(0, 0, D_WIDTH, D_HEIGHT);
 	background.sprite("background.jpg");
@@ -226,6 +226,10 @@ int main(int argc, char** argv)
 
 		player.move(dx, dy);
 		enemy.draw(shader);
+		player.print();
+		enemy.print();
+		printf("\r");
+		fflush(stdout);
 		pack = {player.get_x(), player.get_y(), player.dir};
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
@@ -251,6 +255,7 @@ int main(int argc, char** argv)
 				// have been freed and then don't free those again.
 			        delete bullets[i];
 				bullets.erase(bullets.begin() + i);
+				enemy.health -= 10;
 			}
 
 			for (auto p : platforms) {
