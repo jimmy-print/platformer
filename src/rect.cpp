@@ -2,40 +2,26 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <iostream>
+#include <string>
 
-Rect::Rect(float xp, float yp, float wp, float hp, const char* file)
+Rect::Rect(float xp, float yp, float wp, float hp)
 {
 	x = xp;
 	y = yp;
 	w = wp;
 	h = hp;
 
-	dir = 1;
-
-	if (!strcmp(file, "tile.jpg")) {
-		raw_vs = {
-			x, y,         0,0,
-			x, y + h,     0,h/20,
-			x + w, y + h, w/20,h/20,
-			x + w, y,     w/20,0
-		};
-	} else {
-		raw_vs = {
-			x, y,         0, 0,
-			x, y + h,     0, 1,
-			x + w, y + h, 1, 1,
-			x + w, y,     1, 0
-		};
-	}
-
-	len = raw_vs.size();
-
-	terminal_velocity = 15;
+	raw_vs = {
+		x, y,         NULL, NULL,  // Will be replaced later
+		x, y + h,     NULL, NULL,  // if .sprite(std::string file) is called
+		x + w, y + h, NULL, NULL,
+		x + w, y,     NULL, NULL,
+	};
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * len, &raw_vs[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, &raw_vs[0], GL_STATIC_DRAW);  // 16 magic number
 	glBindVertexArray(VAO);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) 0);
@@ -44,14 +30,46 @@ Rect::Rect(float xp, float yp, float wp, float hp, const char* file)
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
+	image = false;
+}
+
+Rect::~Rect()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteTextures(1, &texture);
+}
+
+void Rect::sprite(std::string file)
+{
+	image = true;
+	if (file == "tile.jpg") {  // magic variable tile.jpg
+		raw_vs[2] = 0;
+		raw_vs[3] = 0;
+		raw_vs[6] = 0;
+		raw_vs[7] = h/20;
+		raw_vs[10] = w/20;
+		raw_vs[11] = h/20;
+		raw_vs[14] = w/20;
+		raw_vs[15] = 0;
+	} else {
+		raw_vs[2] = 0;
+		raw_vs[3] = 0;
+		raw_vs[6] = 0;
+		raw_vs[7] = 1;
+		raw_vs[10] = 1;
+		raw_vs[11] = 1;
+		raw_vs[14] = 1;
+		raw_vs[15] = 0;
+	}
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	int w, h, n;
-	unsigned char* data = stbi_load(file, &w, &h, &n, 0);
+	unsigned char* data = stbi_load(file.c_str(), &w, &h, &n, 0);
 	if (data) {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	} else {
@@ -60,40 +78,10 @@ Rect::Rect(float xp, float yp, float wp, float hp, const char* file)
 	stbi_image_free(data);
 }
 
-void Rect::set_x(float xp)
-{
-	x = xp;
-
-	raw_vs.at(0) = x;
-	raw_vs.at(4) = x;
-	raw_vs.at(8) = x + w;
-	raw_vs.at(12) = x + w;
-}
-
-void Rect::set_y(float yp)
-{
-	y = yp;
-
-	raw_vs.at(1) = y;
-	raw_vs.at(5) = y + h;
-	raw_vs.at(9) = y + h;
-	raw_vs.at(13) = y;
-}
-
-void Rect::move(float dx, float dy)
-{
-	set_x(x + dx);
-	set_y(y + dy);
-	if (dx > 0) {
-		dir = 1;
-	} else if (dx < 0) {
-		dir = -1;
-	}
-}
-
 void Rect::draw(GLuint shader)
 {
-	glBindTexture(GL_TEXTURE_2D, texture);
+	if (image)
+		glBindTexture(GL_TEXTURE_2D, texture);
 	glUseProgram(shader);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -101,23 +89,7 @@ void Rect::draw(GLuint shader)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * len, &raw_vs[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, &raw_vs[0], GL_STATIC_DRAW);  // 16 magic number
 	glDrawArrays(GL_QUADS, 0, 4);
 	glDisableVertexAttribArray(0);
-}
-
-bool Rect::overlap(Rect r1)
-{
-	if ((x) <= (r1.x + r1.w) && (x + w) >= (r1.x) && (y) <= (r1.y + r1.h) && (y + h) >= (r1.y)) {
-		return true;
-	}
-	return false;
-}
-
-bool Rect::hit(int xp, int yp)
-{
-	if (xp >= x && xp <= x + w && yp >= y && yp <= y + h) {
-		return true;
-	}
-	return false;
 }

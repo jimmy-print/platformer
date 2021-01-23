@@ -10,10 +10,12 @@
 #include <rect.h>
 #include <map.h>
 #include <bullet.h>
+#include <character.h>
 
 #include <chrono>
 #include <algorithm>
 #include <string.h>
+#include <string>
 
 int D_WIDTH = 1280;
 int D_HEIGHT = 720;
@@ -61,6 +63,16 @@ void log(std::string msg)
 }
 
 
+bool hit(int px, int py, int pw, int ph, int bx, int by)
+{
+	// If a platform was hit by a bullet or not
+	if (bx >= px && bx <= px + pw && by >= py && by <= py + ph) {
+		return true;
+	}
+	return false;
+}
+
+
 int main(int argc, char** argv)
 {
 	if (argc > 1) {
@@ -90,27 +102,27 @@ int main(int argc, char** argv)
 	glewInit();
 	log("glew init done");
 
-	Rect player(0, 0, 20, 20, "pi.jpg");
-	int player_speed = 7;
-	glPointSize(2);
-	int player_health = 100;
+	Character player(0, 0, 20, 20, "pi.jpg");
 
-	Rect enemy(500, D_HEIGHT - 20, 20, 20, "enemy.jpg");
+	Character enemy(500, D_HEIGHT - 20, 20, 20, "enemy.jpg");
 
-	Rect background(0, 0, D_WIDTH, D_HEIGHT, "background.jpg");
+	Rect background(0, 0, D_WIDTH, D_HEIGHT);
+	background.sprite("background.jpg");
 	int num_of_rects;
 	float** vss = get_all_rects(&num_of_rects);
 
 	int x, y, w, h;
 
-	std::vector<Rect> platforms;
+	std::vector<Rect*> platforms;
 	for (int i = 0; i < num_of_rects; i++) {
 		x = vss[i][0];
 		y = vss[i][1];
 		w = vss[i][2];
 		h = vss[i][3];
 
-		platforms.push_back( Rect(x, y, w, h, "tile.jpg") );
+		Rect* tmp_rect = new Rect(x, y, w, h);
+		tmp_rect->sprite("tile.jpg");
+		platforms.push_back(tmp_rect);
 	}
 	log("rects loaded");
 
@@ -121,6 +133,7 @@ int main(int argc, char** argv)
 	GLuint shader = loadshader(vs_cstr, fs_cstr);
 	GLuint mvp_l = glGetUniformLocation(shader, "mvp");
 
+	glPointSize(2);
 	std::string bullet_vs_str = get_file_str("shaders/bullet.vs");
 	std::string bullet_fs_str = get_file_str("shaders/bullet.fs");
 	const char* bullet_vs_cstr = bullet_vs_str.c_str();
@@ -154,45 +167,47 @@ int main(int argc, char** argv)
 		dy += gravity;
 
 		if (km[GLFW_KEY_A]) {
-			dx = -player_speed;
+			dx = -player.speed;
+			player.dir = -1;
 		}
 		if (km[GLFW_KEY_D]) {
-			dx = player_speed;
+			dx = player.speed;
+			player.dir = 1;
 		}
 		if (km[GLFW_KEY_D] && km[GLFW_KEY_A]) {
 			dx = 0;
 		}
 		if (!km[GLFW_KEY_D] && !km[GLFW_KEY_A]) { dx = 0; }
 
-		if (player.y + player.h >= (float) D_HEIGHT) {
+		if (player.get_y() + player.get_h() >= (float) D_HEIGHT) {
 			dy = 0;
-			player.set_y(D_HEIGHT - player.h);
+			player.set_y(D_HEIGHT - player.get_h());
 			on_ground = true;
 		} else {
 			on_ground = false;
 		}
 
-		if (player.x < 0) {
+		if (player.get_x() < 0) {
 			player.set_x(0);
 			dx = 0;
-		} else if (player.x + player.w > D_WIDTH) {
-			player.set_x(D_WIDTH - player.w);
+		} else if (player.get_x() + player.get_w() > D_WIDTH) {
+			player.set_x(D_WIDTH - player.get_w());
 			dx = 0;
 		}
 
 		player.draw(shader);
 
 		for (auto p : platforms) {
-			p.draw(shader);
+			p->draw(shader);
 
-			if (player.overlap(p)) {
+			if (player.overlap_platform(p)) {
 				if (dy >= 0) {
 					dy = 0;
-					player.set_y(p.y - player.h);
+					player.set_y(p->y - player.get_h());
 					on_ground = true;
 				} else if (dy < 0) {
 					dy = 0;
-					player.set_y(p.y + p.h + 1);
+					player.set_y(p->y + p->h + 1);
 				} else {
 					on_ground = false;
 				}
@@ -211,7 +226,7 @@ int main(int argc, char** argv)
 
 		player.move(dx, dy);
 		enemy.draw(shader);
-		pack = {player.x, player.y, player.dir};
+		pack = {player.get_x(), player.get_y(), player.dir};
 
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
@@ -228,28 +243,31 @@ int main(int argc, char** argv)
 				// and with the destructor it maxes out, but doesn't get smaller.
 				delete bullets[i];
 				bullets.erase(bullets.begin() + i);
-			} else if (enemy.hit(bullets[i]->get_x(), bullets[i]->get_y())) {
+
+			} else if (hit(enemy.get_x(), enemy.get_y(), enemy.get_w(), enemy.get_h(), bullets[i]->get_x(), bullets[i]->get_y())) {
 				// The else probably ensures that a double free error won't happen,
 				// in the case that objects intersect.
 				// A better future solution should be to keep track of which bullets
 				// have been freed and then don't free those again.
-				delete bullets[i];
+			        delete bullets[i];
 				bullets.erase(bullets.begin() + i);
 			}
 
 			for (auto p : platforms) {
-				if (p.hit(bullets[i]->get_x(), bullets[i]->get_y())) {
+				//if (p->hit(bullets[i]->get_x(), bullets[i]->get_y())) {
+				if (hit(p->x, p->y, p->w, p->h, bullets[i]->get_x(), bullets[i]->get_y())) {
 					delete bullets[i];
 					bullets.erase(bullets.begin() + i);
 				}
 			}
+			for (auto b : bullets) {
+				assert((b->get_x() > D_WIDTH && b->get_x() < 0) == false);
+			}
 		}
-
-		for (auto b : bullets) {
-			assert((b->get_x() > D_WIDTH && b->get_x() < 0) == false);
-		}
-
 		glfwSwapBuffers(window);
+	}
+	for (auto p : platforms) {
+		delete p;
 	}
 	log("quit");
 	return 0;

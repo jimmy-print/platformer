@@ -40,7 +40,7 @@ if __name__ == '__main__':
     logging.info('all deps: %s', deps)
 
     Makefile = '''
-objs = main.o bullet.o fileio.o map.o rect.o shader.o
+objs = main.o bullet.o fileio.o map.o rect.o shader.o character.o
 misc = {}
 libs = {}
 platformer: $(objs)
@@ -58,6 +58,8 @@ rect.o: src/rect.cpp
 	g++ -g -c src/rect.cpp $(misc)
 bullet.o: src/bullet.cpp
 	g++ -g -c src/bullet.cpp $(misc)
+character.o: src/character.cpp
+	g++ -g -c src/character.cpp $(misc)
 clean:
 	rm *.o
 '''.format(misc, deps).strip()
