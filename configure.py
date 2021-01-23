@@ -43,8 +43,8 @@ if __name__ == '__main__':
 objs = main.o bullet.o fileio.o map.o rect.o shader.o
 misc = {}
 libs = {}
-game: $(objs)
-	g++ -g -o game $(objs) $(misc) $(libs)
+platformer: $(objs)
+	g++ -g -o platformer $(objs) $(misc) $(libs)
 
 main.o: src/main.cpp
 	g++ -g -c src/main.cpp $(misc)
