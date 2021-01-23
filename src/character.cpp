@@ -48,19 +48,19 @@ bool Character::overlap_platform(Rect* p)
 }
 
 
-Character::get_x()
+int Character::get_x()
 {
 	return rect->x;
 }
-Character::get_y()
+int Character::get_y()
 {
 	return rect->y;
 }
-Character::get_w()
+int Character::get_w()
 {
 	return rect->w;
 }
-Character::get_h()
+int Character::get_h()
 {
 	return rect->h;
 }

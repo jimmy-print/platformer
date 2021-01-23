@@ -18,7 +18,7 @@ if __name__ == '__main__':
     logging.info('system is %s', plt)
 
     deps = ''
-    misc = '-Wall'
+    misc = '-Iinclude -Wall'
     if plt == 'Linux':
         logging.info('using pkg-config and -ldl -lpthread -lm')
         deps += pkg_config('glfw3') + ' '
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         deps += ' -framework OpenGL'
     elif plt == 'Windows':
         logging.info('using manual everything')
-        misc += ' -Iinclude -Llibs -DGLEW_STATIC'
+        misc += ' -Llibs -DGLEW_STATIC'
         deps += '-lglew32s -lglfw3 -lopengl32'
 
     logging.info('all deps: %s', deps)

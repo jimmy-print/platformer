@@ -1,4 +1,4 @@
-game
+platformer
 *.o
 Makefile
 *.swp

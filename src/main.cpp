@@ -274,6 +274,7 @@ int main(int argc, char** argv)
 	for (auto p : platforms) {
 		delete p;
 	}
+	printf("\n");
 	log("quit");
 	return 0;
 }
