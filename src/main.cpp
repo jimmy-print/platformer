@@ -45,7 +45,12 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
 		float player_y = ((struct package*) glfwGetWindowUserPointer(window))->y;
 		float player_dir = ((struct package*) glfwGetWindowUserPointer(window))->dir;
 
-		Bullet* b = new Bullet(player_x, player_y, player_dir);
+		Bullet* b;
+		if (player_dir == -1) {
+			b = new Bullet(player_x, player_y + 5, player_dir);
+		} else if (player_dir == 1) {
+			b = new Bullet(player_x + 20 /* Magic number */, player_y + 5, player_dir);
+		}
 		bullets.push_back(b);
 	}
 }
