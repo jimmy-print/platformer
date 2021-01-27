@@ -1,3 +1,1 @@
-fix maybe bullet still at platform corners on macos
 fix semi memory leak for bullets
-render text
