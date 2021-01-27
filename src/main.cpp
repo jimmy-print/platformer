@@ -120,7 +120,7 @@ int main(int argc, char** argv)
 			    &face
 		       )
 		);
-	FT_Set_Pixel_Sizes(face, 0, 100);
+	FT_Set_Pixel_Sizes(face, 0, 30);
 	assert(!FT_Load_Char(face, 'a', FT_LOAD_RENDER));
 	
 	// Load a
@@ -280,8 +280,10 @@ void main() {
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(VAO);
 
-		float x = 200 + second_vec2.x * 1.0f;
-		float y = 500 - (first_vec2.y - second_vec2.y) * 1.0f;
+		//float x = 200 + second_vec2.x * 1.0f;
+		//float y = 500 - (first_vec2.y - second_vec2.y) * 1.0f;
+		float x = player.get_x();
+		float y = player.get_y();
 
 		float w = first_vec2.x * 1.0f;
 		float h = first_vec2.y * 1.0f;
@@ -304,7 +306,7 @@ void main() {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glUniformMatrix4fv(text_mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
-		player.draw(shader);
+//		player.draw(shader);
 
 		for (auto p : platforms) {
 			p->draw(shader);
