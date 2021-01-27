@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <iostream>
 #include <map>
 
@@ -107,6 +110,78 @@ int main(int argc, char** argv)
 	glewInit();
 	log("glew init done");
 
+	
+	
+	FT_Library library;
+	assert(!FT_Init_FreeType(&library));
+	FT_Face face;
+	assert(!FT_New_Face(library, "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+			    0,
+			    &face
+		       )
+		);
+	FT_Set_Pixel_Sizes(face, 0, 100);
+	assert(!FT_Load_Char(face, 'a', FT_LOAD_RENDER));
+	
+	// Load a
+	FT_Load_Char(face, 'e', FT_LOAD_RENDER);
+	GLuint char_texture;
+	glGenTextures(1, &char_texture);
+	glBindTexture(GL_TEXTURE_2D, char_texture);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);   
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED,
+		face->glyph->bitmap.width, face->glyph->bitmap.rows, 
+		0, GL_RED, GL_UNSIGNED_BYTE,
+		face->glyph->bitmap.buffer
+	);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
+	
+	glm::ivec2 first_vec2(face->glyph->bitmap.width, face->glyph->bitmap.rows);
+	glm::ivec2 second_vec2(face->glyph->bitmap_left, face->glyph->bitmap_top);
+	int advance_x = face->glyph->advance.x;
+
+	const char* text_vs_cstr = R"(
+#version 330 core
+layout (location = 0) in vec2 pos;
+layout (location = 1) in vec2 tex;
+out vec2 TEX;
+uniform mat4 mvp;
+void main() {
+    gl_Position = mvp * vec4(pos.x, pos.y, 0.0, 1.0);
+    TEX = tex;
+})";
+	const char* text_fs_cstr = R"(
+#version 330 core
+in vec2 TEX;
+out vec4 color;
+uniform sampler2D TEXTURE;
+uniform vec3 c_color;
+void main() {    
+    vec4 mono = vec4(1.0, 1.0, 1.0, texture(TEXTURE, TEX).r);
+    color = vec4(c_color, 1.0) * mono;
+})";
+	GLuint text_shader = loadshader(text_vs_cstr, text_fs_cstr);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	unsigned int VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (0));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (2 * sizeof(float)));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);      
+	GLuint text_c_color_l = glGetUniformLocation(text_shader, "c_color");
+	GLuint text_mvp_l = glGetUniformLocation(text_shader, "mvp");
+
 	Character player(0, 0, 20, 20, "pi.jpg", 100, "player");
 
 	Character enemy(500, D_HEIGHT - 20, 20, 20, "enemy.jpg", 100, "enemy0");
@@ -199,6 +274,35 @@ int main(int argc, char** argv)
 			player.set_x(D_WIDTH - player.get_w());
 			dx = 0;
 		}
+
+		glUseProgram(text_shader);
+		glUniform3f(text_c_color_l, 1.0, 1.0, 1.0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindVertexArray(VAO);
+
+		float x = 200 + second_vec2.x * 1.0f;
+		float y = 500 - (first_vec2.y - second_vec2.y) * 1.0f;
+
+		float w = first_vec2.x * 1.0f;
+		float h = first_vec2.y * 1.0f;
+
+		float vertices[24] = {
+			x, y,         0.f, 0.f,
+			x, y + h,     0.f, 1.f,
+			x + w, y + h, 1.f, 1.f,
+			
+			x, y,         0.f, 0.f,
+			x + w, y,     1.f, 0.f,
+			x + w, y + h, 1.f, 1.f
+		};
+		glBindTexture(GL_TEXTURE_2D, char_texture);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glUniformMatrix4fv(text_mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
 		player.draw(shader);
 
