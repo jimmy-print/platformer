@@ -22,7 +22,10 @@ void Character::set_x(int x)
 	rect->raw_vs[0] = x;
 	rect->raw_vs[4] = x;
 	rect->raw_vs[8] = x + rect->w;
-	rect->raw_vs[12] = x + rect->w;
+
+	rect->raw_vs[12] = x;
+	rect->raw_vs[16] = x + rect->w;
+	rect->raw_vs[20] = x + rect->w;
 }
 void Character::set_y(int y)
 {
@@ -30,7 +33,10 @@ void Character::set_y(int y)
 	rect->raw_vs[1] = y;
 	rect->raw_vs[5] = y + rect->h;
 	rect->raw_vs[9] = y + rect->h;
+
 	rect->raw_vs[13] = y;
+	rect->raw_vs[17] = y;
+	rect->raw_vs[21] = y + rect->h;
 }
 
 void Character::move(int dx, int dy)

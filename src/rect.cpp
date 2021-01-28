@@ -12,16 +12,19 @@ Rect::Rect(float xp, float yp, float wp, float hp)
 	h = hp;
 
 	raw_vs = {
-		x, y,         NULL, NULL,  // Will be replaced later
-		x, y + h,     NULL, NULL,  // if .sprite(std::string file) is called
+		x, y, NULL, NULL,
+		x, y + h, NULL, NULL,
 		x + w, y + h, NULL, NULL,
-		x + w, y,     NULL, NULL,
+
+		x, y, NULL, NULL,
+		x + w, y, NULL, NULL,
+		x + w, y + h, NULL, NULL
 	};
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, &raw_vs[0], GL_STATIC_DRAW);  // 16 magic number
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * raw_vs.size(), &raw_vs[0], GL_STATIC_DRAW);
 	glBindVertexArray(VAO);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) 0);
@@ -50,8 +53,14 @@ void Rect::sprite(std::string file)
 		raw_vs[7] = h/20;
 		raw_vs[10] = w/20;
 		raw_vs[11] = h/20;
-		raw_vs[14] = w/20;
+
+		raw_vs[14] = 0;
 		raw_vs[15] = 0;
+		raw_vs[18] = w/20;
+		raw_vs[19] = 0;
+		raw_vs[22] = w/20;
+		raw_vs[23] = h/20;
+
 	} else {
 		raw_vs[2] = 0;
 		raw_vs[3] = 0;
@@ -59,8 +68,13 @@ void Rect::sprite(std::string file)
 		raw_vs[7] = 1;
 		raw_vs[10] = 1;
 		raw_vs[11] = 1;
-		raw_vs[14] = 1;
+
+		raw_vs[14] = 0;
 		raw_vs[15] = 0;
+		raw_vs[18] = 1;
+		raw_vs[19] = 0;
+		raw_vs[22] = 1;
+		raw_vs[23] = 1;
 	}
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -89,7 +103,7 @@ void Rect::draw(GLuint shader)
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*) (2 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, &raw_vs[0], GL_STATIC_DRAW);  // 16 magic number
-	glDrawArrays(GL_QUADS, 0, 4);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * raw_vs.size(), &raw_vs[0], GL_STATIC_DRAW);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisableVertexAttribArray(0);
 }

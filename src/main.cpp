@@ -337,12 +337,8 @@ void main() {
 
 		player.move(dx, dy);
 		enemy.draw(shader);
-		player.print();
-		enemy.print();
-		printf("\r");
-		fflush(stdout);
-		pack = {player.get_x(), player.get_y(), player.dir};
 
+		pack = {(float) player.get_x(), (float) player.get_y(), player.dir};
 		glUniformMatrix4fv(mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
 		glUseProgram(bullet_shader);
@@ -380,6 +376,7 @@ void main() {
 				assert((b->get_x() > D_WIDTH && b->get_x() < 0) == false);
 			}
 		}
+
 		glfwSwapBuffers(window);
 	}
 	for (auto p : platforms) {
