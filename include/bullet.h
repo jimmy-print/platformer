@@ -14,7 +14,7 @@ public:
 	int get_y();
 private:
 	int x, y, dir;
-	int speed = 10;
+	int speed;
 	float* vs;
 	GLuint VAO, VBO;
 };

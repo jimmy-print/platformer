@@ -12,6 +12,8 @@ Bullet::Bullet(int xp, int yp, int dirp)
 	y = yp;
 	dir = dirp;
 
+	speed = 8;
+
 	vs = new float[2];
 	vs[0] = x;
 	vs[1] = y;
