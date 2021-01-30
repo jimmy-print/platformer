@@ -5,30 +5,11 @@
 #include <GL/glew.h>
 
 #include <shader.h>
+#include <map>
+#include <iostream>
 
-Text::Text(std::string text, FT_Face face, GLuint* text_mvp_l_ptr)
+Text::Text(FT_Face face, GLuint* text_mvp_l_ptr)
 {
-	FT_Load_Char(face, 'e', FT_LOAD_RENDER);
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED,
-		     face->glyph->bitmap.width, face->glyph->bitmap.rows,
-		     0, GL_RED, GL_UNSIGNED_BYTE,
-		     face->glyph->bitmap.buffer
-		);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	width = face->glyph->bitmap.width;
-	rows = face->glyph->bitmap.rows;
-	left = face->glyph->bitmap_left;
-	top = face->glyph->bitmap_top;
-	advance_x = face->glyph->advance.x;
-
 	const char* text_vs_cstr = R"(
 #version 330 core
 layout (location = 0) in vec2 pos;
@@ -55,6 +36,37 @@ void main() {
 	GLuint text_mvp_l = glGetUniformLocation(text_shader, "mvp");
 	*text_mvp_l_ptr = text_mvp_l;
 
+	for (unsigned char c = 0; c < 128; c++) {
+		FT_Load_Char(face, c, FT_LOAD_RENDER);
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED,
+		     face->glyph->bitmap.width, face->glyph->bitmap.rows,
+		     0, GL_RED, GL_UNSIGNED_BYTE,
+		     face->glyph->bitmap.buffer
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		int width = face->glyph->bitmap.width;
+		int rows = face->glyph->bitmap.rows;
+		int left = face->glyph->bitmap_left;
+		int top = face->glyph->bitmap_top;
+		int advance_x = face->glyph->advance.x;
+
+		struct glyph g = {texture, width, rows, left, top, advance_x};
+		glyphs.insert(std::pair<unsigned char, glyph> (c, g));
+	}
+
+
+
+
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glGenVertexArrays(1, &VAO);
@@ -70,30 +82,37 @@ void main() {
 	glBindVertexArray(0);
 }
 
-void Text::draw(int x, int y, float scale, float r, float g, float b)
+void Text::draw(std::string text, int x, int y, float scale, float r, float g, float b)
 {
-	glUseProgram(text_shader);
-	glUniform3f(text_c_color_l, r, g, b);
-	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(VAO);
-	float w = width * scale;
-	float h = rows * scale;
+	for (auto c : text) {
+		glUseProgram(text_shader);
+		glUniform3f(text_c_color_l, r, g, b);
+		glActiveTexture(GL_TEXTURE0);
+		glBindVertexArray(VAO);
+		struct glyph g = glyphs[c];
 
-	float vertices[24] = {
-		x, y,         0.f, 0.f,
-		x, y + h,     0.f, 1.f,
-		x + w, y + h, 1.f, 1.f,
+		// x = x + g.left * scale;
+		// y = y - (g.rows - g.top) * scale;
+		float w = g.width * scale;
+		float h = g.rows * scale;
 
-		x, y,         0.f, 0.f,
-		x + w, y,     1.f, 0.f,
-		x + w, y + h, 1.f, 1.f
-	};
+	        float vertices[24] = {
+			x, y,         0.f, 0.f,
+			x, y + h,     0.f, 1.f,
+			x + w, y + h, 1.f, 1.f,
 
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
+			x, y,         0.f, 0.f,
+			x + w, y,     1.f, 0.f,
+			x + w, y + h, 1.f, 1.f
+		};
+		glBindTexture(GL_TEXTURE_2D, g.texture);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		x += (g.advance_x >> 6) * scale;
+	}
 }

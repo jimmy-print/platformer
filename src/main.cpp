@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 	assert(!FT_Load_Char(face, 'a', FT_LOAD_RENDER));
 
 	GLuint text_mvp_l;
-	Text text("test text", face, &text_mvp_l);
+	Text text(face, &text_mvp_l);
 
 	Character player(0, 0, 20, 20, "pi.jpg", 100, "player");
 
@@ -218,7 +218,7 @@ int main(int argc, char** argv)
 			dx = 0;
 		}
 
-		text.draw(player.get_x(), player.get_y(), 1.0, 1.0, 1.0, 1.0);
+		text.draw("30asdf", player.get_x(), player.get_y(), 0.6, 1.0, 1.0, 1.0);
 		glUniformMatrix4fv(text_mvp_l, 1, GL_FALSE, &mvp[0][0]);
 
 //		player.draw(shader);
@@ -259,9 +259,7 @@ int main(int argc, char** argv)
 		glUseProgram(bullet_shader);
 		for (auto b : bullets) {
 			b->tick();
-//			b->draw();
-
-			text.draw(b->get_x(), b->get_y(), 0.5, 1.0, 1.0, 0.0);
+			b->draw();
 		}
 		glUniformMatrix4fv(bullet_mvp_l, 1, GL_FALSE, &mvp[0][0]);
 		for (int i = 0; i < bullets.size(); i++) {
