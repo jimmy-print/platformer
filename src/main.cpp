@@ -153,7 +153,7 @@ int main(int argc, char** argv)
 	std::string fs_str = get_file_str("shaders/fs.fs");
 	const char* vs_cstr = vs_str.c_str();
 	const char* fs_cstr = fs_str.c_str();
-	GLuint shader = loadshader(vs_cstr, fs_cstr);
+	GLuint shader = load_shader(vs_cstr, fs_cstr);
 	GLuint mvp_l = glGetUniformLocation(shader, "mvp");
 
 	glPointSize(2);
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
 	std::string bullet_fs_str = get_file_str("shaders/bullet.fs");
 	const char* bullet_vs_cstr = bullet_vs_str.c_str();
 	const char* bullet_fs_cstr = bullet_fs_str.c_str();
-	GLuint bullet_shader = loadshader(bullet_vs_cstr, bullet_fs_cstr);
+	GLuint bullet_shader = load_shader(bullet_vs_cstr, bullet_fs_cstr);
 	GLuint bullet_mvp_l = glGetUniformLocation(bullet_shader, "mvp");
 
 	glm::mat4 projection = glm::ortho(0.f, (float) D_WIDTH, (float)D_HEIGHT, 0.f, -0.1f, 100.f);

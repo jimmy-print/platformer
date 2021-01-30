@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-GLuint loadshader(const char* vs_cstr, const char* fs_cstr)
+GLuint load_shader(const char* vs_cstr, const char* fs_cstr)
 {
 	GLuint program;
 

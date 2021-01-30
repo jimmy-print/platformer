@@ -50,7 +50,7 @@ void main() {
     color = vec4(c_color, 1.0) * mono;
 })";
 
-	text_shader = loadshader(text_vs_cstr, text_fs_cstr);
+	text_shader = load_shader(text_vs_cstr, text_fs_cstr);
 	text_c_color_l = glGetUniformLocation(text_shader, "c_color");
 	GLuint text_mvp_l = glGetUniformLocation(text_shader, "mvp");
 	*text_mvp_l_ptr = text_mvp_l;
